@@ -67,8 +67,7 @@
 - **雙向同步縮放與平移 (Pan & Zoom)**。
 
 ### 3.5 匯出與下載
-- **一鍵下載 PNG**：匯出 32-bit RGBA 無損壓縮透明 PNG。
-- **複製到剪貼簿**：直接將 PNG 二進位寫入系統剪貼簿。
+- **一鍵下載 PNG**：匯出 32-bit RGBA 無損壓縮透明 PNG（支援手機相簿與電腦儲存）。
 - **REST API**：提供 `/api/stamp/extract`（支援 Base64 與 Binary Stream）。
 
 ---
