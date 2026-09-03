@@ -11,43 +11,15 @@
       </button>
     </div>
 
-    <!-- 影像來源處理管線模式提示 -->
-    <div class="source-pipeline-banner" :class="modelValue.sourceType === 'camera' ? 'banner-camera' : 'banner-upload'">
+    <!-- 影像來源處理管線模式提示 (僅在即時視訊拍攝時顯示，隱藏照片檔案上傳模式UX) -->
+    <div v-if="modelValue.sourceType === 'camera'" class="source-pipeline-banner banner-camera">
       <div class="banner-badge">
         <span class="badge-dot"></span>
-        <span>{{ modelValue.sourceType === 'camera' ? '📷 即時視訊拍攝模式' : '📁 照片檔案上傳模式' }}</span>
+        <span>📷 即時視訊拍攝模式</span>
       </div>
       <p class="banner-note">
-        {{ modelValue.sourceType === 'camera' ? '保留完整相機視野，不執行第一步偵測裁切原圖' : '執行第一步印章偵測定位，並自動裁切原圖' }}
+        保留完整相機視野，不執行第一步偵測裁切原圖
       </p>
-    </div>
-
-
-    <!-- 圖片旋轉調校 -->
-    <div class="rotation-section">
-      <div class="slider-header">
-        <label class="group-label">🔄 圖片旋轉角度</label>
-        <span class="slider-val">{{ modelValue.rotation || 0 }}°</span>
-      </div>
-      <div class="rotation-actions-row">
-        <button class="preset-btn rot-btn" @click="rotateBy(-90)">
-          ↺ 向左 90°
-        </button>
-        <button class="preset-btn rot-btn" @click="rotateBy(90)">
-          ↻ 向右 90°
-        </button>
-        <button class="preset-btn rot-btn" @click="updateOption('rotation', 0)">
-          ⟲ 重置 0°
-        </button>
-      </div>
-      <input
-        type="range"
-        min="0"
-        max="360"
-        step="1"
-        :value="modelValue.rotation || 0"
-        @input="onRangeChange('rotation', $event)"
-      />
     </div>
 
 
@@ -150,11 +122,6 @@ const onCheckboxChange = (key: keyof StampOptions, event: Event) => {
   updateOption(key, target.checked as never);
 };
 
-const rotateBy = (delta: number) => {
-  const current = props.modelValue.rotation || 0;
-  const next = (current + delta + 360) % 360;
-  updateOption('rotation', next);
-};
 
 const resetDefaults = () => {
   const defaultOpts: StampOptions = {

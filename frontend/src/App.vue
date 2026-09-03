@@ -43,6 +43,8 @@
             :original-image-url="originalImageUrl"
             :result="processedResult"
             :current-options="stampOptions"
+            @update:rotation="handleRotationChange"
+            @rotate="handleRotationChange"
           />
         </div>
       </div>
@@ -103,6 +105,11 @@ const triggerProcessing = () => {
   debounceTimer = setTimeout(() => {
     runProcessing();
   }, 30);
+};
+
+const handleRotationChange = (angle: number) => {
+  stampOptions.value.rotation = angle;
+  triggerProcessing();
 };
 
 const runProcessing = async () => {

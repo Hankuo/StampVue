@@ -76,6 +76,53 @@
       </div>
     </div>
 
+    <!-- 步驟 3 印章旋轉角度調校列 -->
+    <div v-if="originalImageUrl" class="rotation-toolbar">
+      <div class="rot-title-wrap">
+        <span class="rot-label">🔄 旋轉角度:</span>
+        <span class="rot-val-badge">{{ currentOptions.rotation || 0 }}°</span>
+      </div>
+
+      <div class="rot-quick-actions">
+        <button
+          type="button"
+          class="rot-action-btn"
+          title="向左旋轉 90 度"
+          @click="rotateBy(-90)"
+        >
+          ↺ 向左 90°
+        </button>
+        <button
+          type="button"
+          class="rot-action-btn"
+          title="向右旋轉 90 度"
+          @click="rotateBy(90)"
+        >
+          ↻ 向右 90°
+        </button>
+        <button
+          type="button"
+          class="rot-action-btn"
+          title="重設旋轉角度為 0 度"
+          @click="setRotation(0)"
+        >
+          ⟲ 重設 0°
+        </button>
+      </div>
+
+      <div class="rot-slider-box">
+        <input
+          type="range"
+          min="0"
+          max="360"
+          step="1"
+          :value="currentOptions.rotation || 0"
+          class="rot-range-input"
+          @input="onRotationSliderChange"
+        />
+      </div>
+    </div>
+
     <!-- 畫布/預覽展示區 -->
     <div
       class="canvas-viewport"
@@ -176,6 +223,30 @@ const props = defineProps<{
   result: ProcessedStampResult | null;
   currentOptions: StampOptions;
 }>();
+
+const emit = defineEmits<{
+  (e: 'update:rotation', angle: number): void;
+  (e: 'rotate', angle: number): void;
+}>();
+
+const rotateBy = (delta: number) => {
+  const current = props.currentOptions.rotation || 0;
+  const next = (current + delta + 360) % 360;
+  emit('update:rotation', next);
+  emit('rotate', next);
+};
+
+const setRotation = (angle: number) => {
+  emit('update:rotation', angle);
+  emit('rotate', angle);
+};
+
+const onRotationSliderChange = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  const val = Number(target.value);
+  emit('update:rotation', val);
+  emit('rotate', val);
+};
 
 const viewMode = ref<'split' | 'extracted' | 'original'>('split');
 const currentBg = ref<PreviewBackground>('checkerboard');
@@ -559,6 +630,73 @@ onBeforeUnmount(() => {
   font-size: 1rem;
 }
 
+/* 步驟 3 印章旋轉角度調校列 */
+.rotation-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.rot-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.rot-val-badge {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+  padding: 1px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.rot-quick-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.rot-action-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.775rem;
+  padding: 4px 9px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.rot-action-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  border-color: var(--border-focus);
+}
+
+.rot-slider-box {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+}
+
+.rot-range-input {
+  width: 100%;
+  accent-color: var(--accent-red);
+  cursor: pointer;
+}
+
 /* Responsive Media Queries */
 @media (max-width: 640px) {
   .preview-header {
@@ -601,6 +739,21 @@ onBeforeUnmount(() => {
 
   .export-actions-row .btn {
     width: 100%;
+  }
+
+  .rotation-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .rot-quick-actions {
+    width: 100%;
+  }
+
+  .rot-action-btn {
+    flex: 1;
+    text-align: center;
   }
 }
 </style>
