@@ -63,26 +63,26 @@
               <button
                 type="button"
                 class="size-btn"
-                :class="{ active: cropSize === 200 }"
-                @click.stop="cropSize = 200"
+                :class="{ active: cropSize === 140 }"
+                @click.stop="cropSize = 140"
               >
-                標準 (200px)
+                小印 (140px)
               </button>
               <button
                 type="button"
                 class="size-btn"
-                :class="{ active: cropSize === 260 }"
-                @click.stop="cropSize = 260"
+                :class="{ active: cropSize === 180 }"
+                @click.stop="cropSize = 180"
               >
-                中等 (260px)
+                標準 (180px)
               </button>
               <button
                 type="button"
                 class="size-btn"
-                :class="{ active: cropSize === 320 }"
-                @click.stop="cropSize = 320"
+                :class="{ active: cropSize === 220 }"
+                @click.stop="cropSize = 220"
               >
-                大印章 (320px)
+                大印 (220px)
               </button>
             </div>
           </div>
@@ -128,7 +128,7 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
 const videoRef = ref<HTMLVideoElement | null>(null);
 const videoContainerRef = ref<HTMLDivElement | null>(null);
 const crosshairRef = ref<HTMLDivElement | null>(null);
-const cropSize = ref<number>(240);
+const cropSize = ref<number>(180);
 const isDragging = ref<boolean>(false);
 const isLiveCameraOpen = ref<boolean>(false);
 let mediaStream: MediaStream | null = null;
@@ -489,6 +489,7 @@ onBeforeUnmount(() => {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
+  max-height: 52vh;
   background: black;
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -506,6 +507,10 @@ onBeforeUnmount(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  /* 確保裁切框絕不貼邊滿版，四周保留充足取景餘裕 */
+  max-width: 65%;
+  max-height: 65%;
+  aspect-ratio: 1 / 1;
   border: 2px dashed rgba(239, 68, 68, 0.85);
   border-radius: 8px;
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.52);
@@ -514,6 +519,45 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 手機版自適應優化 */
+@media (max-width: 640px) {
+  .live-camera-modal .modal-card {
+    width: 95%;
+    max-width: 420px;
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .live-camera-modal .crop-size-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 6px 10px;
+  }
+
+  .live-camera-modal .size-btn-group {
+    width: 100%;
+  }
+
+  .live-camera-modal .size-btn {
+    flex: 1;
+    text-align: center;
+    padding: 5px 6px;
+    font-size: 0.72rem;
+  }
+
+  .live-camera-modal .video-container {
+    /* 手機端改為 1:1 正方形取景，提供完整縱深空間 */
+    aspect-ratio: 1 / 1;
+    max-height: 46vh;
+  }
+
+  .live-camera-modal .crosshair-guide {
+    max-width: 60%;
+    max-height: 60%;
+  }
 }
 
 /* 4 個角的精準金屬瞄準直角標記 */
