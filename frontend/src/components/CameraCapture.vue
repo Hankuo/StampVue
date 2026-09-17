@@ -69,9 +69,8 @@
       </div>
     </div>
 
-    <!-- WebRTC 即時鏡頭 Modal (以 Teleport 掛載於 body 避免 Event Trapping 與 z-index 遮蔽) -->
-    <Teleport to="body">
-      <div v-if="isLiveCameraOpen" class="live-camera-modal">
+    <!-- WebRTC 即時鏡頭 Modal (以 fixed 定位全螢幕呈現) -->
+    <div v-if="isLiveCameraOpen" class="live-camera-modal">
         <div class="modal-backdrop" @click.stop="closeLiveCamera"></div>
         <div class="modal-card glass-panel">
           <div class="modal-header">
@@ -139,17 +138,14 @@
           </div>
         </div>
       </div>
-    </Teleport>
 
-    <!-- 相片檔案上傳後之互動裁切取景 Modal (以 Teleport 掛載於 body) -->
-    <Teleport to="body">
-      <div v-if="isUploadCropperOpen" class="live-camera-modal upload-cropper-modal">
+    <!-- 相片檔案上傳後之互動裁切取景 Modal (以 fixed 定位全螢幕呈現) -->
+    <div v-if="isUploadCropperOpen" class="live-camera-modal upload-cropper-modal">
         <div class="modal-backdrop" @click.stop="closeUploadCropper"></div>
         <div class="modal-card glass-panel">
           <div class="modal-header">
             <div class="modal-title-row">
-              <h4>裁切印章取景</h4>
-              <span class="crop-guide-tip">拖曳紅框對準印章主體</span>
+              <h4>裁切印章</h4>
             </div>
             <button class="close-btn" type="button" @click.stop="closeUploadCropper">✕</button>
           </div>
@@ -161,7 +157,7 @@
               <button
                 type="button"
                 class="size-btn"
-                :class="{ active: uploadCropSize === 140 }"
+                :class="{ active: Math.round(uploadCropSize) === 140 }"
                 @click.stop="uploadCropSize = 140"
               >
                 小印 (140px)
@@ -169,7 +165,7 @@
               <button
                 type="button"
                 class="size-btn"
-                :class="{ active: uploadCropSize === 180 }"
+                :class="{ active: Math.round(uploadCropSize) === 180 }"
                 @click.stop="uploadCropSize = 180"
               >
                 標準 (180px)
@@ -177,7 +173,7 @@
               <button
                 type="button"
                 class="size-btn"
-                :class="{ active: uploadCropSize === 240 }"
+                :class="{ active: Math.round(uploadCropSize) === 240 }"
                 @click.stop="uploadCropSize = 240"
               >
                 大印 (240px)
@@ -185,12 +181,12 @@
             </div>
           </div>
 
-          <!-- 圖片容器與可拖曳紅框 -->
+          <!-- 圖片容器與可拖曳紅框 (支援四角與邊框等比正方形縮放) -->
           <div
             ref="uploadContainerRef"
             class="video-container upload-crop-stage"
             @mousedown="startCropDrag"
-            @touchstart.passive="startCropDrag"
+            @touchstart="startCropDrag"
           >
             <img
               ref="uploadImgRef"
@@ -207,28 +203,37 @@
                 height: `${uploadCropSize}px`,
                 transform: `translate(calc(-50% + ${uploadCropPos.x}px), calc(-50% + ${uploadCropPos.y}px))`
               }"
+              @mousedown.stop="startCropDrag"
+              @touchstart.stop="startCropDrag"
             >
-              <div class="corner corner-tl"></div>
-              <div class="corner corner-tr"></div>
-              <div class="corner corner-bl"></div>
-              <div class="corner corner-br"></div>
+              <!-- 4 條邊框縮放把手 -->
+              <div class="resize-edge edge-t" @mousedown.stop="startResizeDrag($event, 't')" @touchstart.stop="startResizeDrag($event, 't')"></div>
+              <div class="resize-edge edge-b" @mousedown.stop="startResizeDrag($event, 'b')" @touchstart.stop="startResizeDrag($event, 'b')"></div>
+              <div class="resize-edge edge-l" @mousedown.stop="startResizeDrag($event, 'l')" @touchstart.stop="startResizeDrag($event, 'l')"></div>
+              <div class="resize-edge edge-r" @mousedown.stop="startResizeDrag($event, 'r')" @touchstart.stop="startResizeDrag($event, 'r')"></div>
+
+              <!-- 4 個角落縮放把手 (兼瞄準標記) -->
+              <div class="corner corner-tl" @mousedown.stop="startResizeDrag($event, 'tl')" @touchstart.stop="startResizeDrag($event, 'tl')"></div>
+              <div class="corner corner-tr" @mousedown.stop="startResizeDrag($event, 'tr')" @touchstart.stop="startResizeDrag($event, 'tr')"></div>
+              <div class="corner corner-bl" @mousedown.stop="startResizeDrag($event, 'bl')" @touchstart.stop="startResizeDrag($event, 'bl')"></div>
+              <div class="corner corner-br" @mousedown.stop="startResizeDrag($event, 'br')" @touchstart.stop="startResizeDrag($event, 'br')"></div>
+
               <div class="crosshair-center"></div>
-              <span class="guide-tag">🎯 拖曳紅框移動對準</span>
+              <span class="guide-tag">🎯 移動 / 邊角縮放 ({{ Math.round(uploadCropSize) }}px)</span>
             </div>
           </div>
 
           <div class="modal-actions">
-            <button class="btn btn-secondary" type="button" @click.stop="skipCropAndSend">
-              略過裁切 (全圖)
+            <button class="btn btn-secondary" type="button" @click.stop="closeUploadCropper">
+              取消
             </button>
             <button class="btn btn-primary btn-shutter" type="button" @click.stop.prevent="confirmUploadCrop">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              完成裁切並去背
+              裁切
             </button>
           </div>
         </div>
       </div>
-    </Teleport>
   </div>
 </template>
 
@@ -272,7 +277,17 @@ let dragStartY = 0;
 let initialCropX = 0;
 let initialCropY = 0;
 
+type ResizeHandle = 'tl' | 'tr' | 'bl' | 'br' | 't' | 'b' | 'l' | 'r';
+let isResizingCrop = false;
+let activeResizeHandle: ResizeHandle | null = null;
+let resizeStartX = 0;
+let resizeStartY = 0;
+let resizeInitialSize = 180;
+let resizeInitialPosX = 0;
+let resizeInitialPosY = 0;
+
 const startCropDrag = (e: MouseEvent | TouchEvent) => {
+  if (isResizingCrop) return;
   isDraggingUploadCrop = true;
   const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
   const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
@@ -283,12 +298,13 @@ const startCropDrag = (e: MouseEvent | TouchEvent) => {
 
   window.addEventListener('mousemove', onCropDragMove);
   window.addEventListener('mouseup', stopCropDrag);
-  window.addEventListener('touchmove', onCropDragMove);
+  window.addEventListener('touchmove', onCropDragMove, { passive: false });
   window.addEventListener('touchend', stopCropDrag);
 };
 
 const onCropDragMove = (e: MouseEvent | TouchEvent) => {
   if (!isDraggingUploadCrop) return;
+  if ('touches' in e) e.preventDefault();
   const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
   const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
   const dx = clientX - dragStartX;
@@ -308,9 +324,103 @@ const stopCropDrag = () => {
   window.removeEventListener('touchend', stopCropDrag);
 };
 
+const startResizeDrag = (e: MouseEvent | TouchEvent, handle: ResizeHandle) => {
+  e.stopPropagation();
+  if ('touches' in e) e.preventDefault();
+  isResizingCrop = true;
+  activeResizeHandle = handle;
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  resizeStartX = clientX;
+  resizeStartY = clientY;
+  resizeInitialSize = uploadCropSize.value;
+  resizeInitialPosX = uploadCropPos.value.x;
+  resizeInitialPosY = uploadCropPos.value.y;
+
+  window.addEventListener('mousemove', onResizeDragMove);
+  window.addEventListener('mouseup', stopResizeDrag);
+  window.addEventListener('touchmove', onResizeDragMove, { passive: false });
+  window.addEventListener('touchend', stopResizeDrag);
+};
+
+const onResizeDragMove = (e: MouseEvent | TouchEvent) => {
+  if (!isResizingCrop || !activeResizeHandle) return;
+  if ('touches' in e) e.preventDefault();
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  const dx = clientX - resizeStartX;
+  const dy = clientY - resizeStartY;
+
+  let deltaSize = 0;
+  let moveSignX = 0;
+  let moveSignY = 0;
+
+  switch (activeResizeHandle) {
+    case 'br':
+      deltaSize = (dx + dy) / 2;
+      moveSignX = 1;
+      moveSignY = 1;
+      break;
+    case 'tl':
+      deltaSize = (-dx - dy) / 2;
+      moveSignX = -1;
+      moveSignY = -1;
+      break;
+    case 'tr':
+      deltaSize = (dx - dy) / 2;
+      moveSignX = 1;
+      moveSignY = -1;
+      break;
+    case 'bl':
+      deltaSize = (-dx + dy) / 2;
+      moveSignX = -1;
+      moveSignY = 1;
+      break;
+    case 'r':
+      deltaSize = dx;
+      moveSignX = 1;
+      moveSignY = 1;
+      break;
+    case 'l':
+      deltaSize = -dx;
+      moveSignX = -1;
+      moveSignY = -1;
+      break;
+    case 'b':
+      deltaSize = dy;
+      moveSignX = 1;
+      moveSignY = 1;
+      break;
+    case 't':
+      deltaSize = -dy;
+      moveSignX = -1;
+      moveSignY = -1;
+      break;
+  }
+
+  // 正方形等比縮放鉗位：最小 50px，最大 600px
+  const newSize = Math.max(50, Math.min(600, Math.round(resizeInitialSize + deltaSize)));
+  const actualDelta = newSize - resizeInitialSize;
+
+  uploadCropSize.value = newSize;
+  uploadCropPos.value = {
+    x: Math.round(resizeInitialPosX + (actualDelta / 2) * moveSignX),
+    y: Math.round(resizeInitialPosY + (actualDelta / 2) * moveSignY)
+  };
+};
+
+const stopResizeDrag = () => {
+  isResizingCrop = false;
+  activeResizeHandle = null;
+  window.removeEventListener('mousemove', onResizeDragMove);
+  window.removeEventListener('mouseup', stopResizeDrag);
+  window.removeEventListener('touchmove', onResizeDragMove);
+  window.removeEventListener('touchend', stopResizeDrag);
+};
+
 const confirmUploadCrop = () => {
   if (!uploadImgRef.value || !uploadCropBoxRef.value) {
-    skipCropAndSend();
+    closeUploadCropper();
     return;
   }
   const img = uploadImgRef.value;
@@ -323,7 +433,7 @@ const confirmUploadCrop = () => {
   const natH = img.naturalHeight;
 
   if (imgRect.width === 0 || imgRect.height === 0 || natW === 0 || natH === 0) {
-    skipCropAndSend();
+    closeUploadCropper();
     return;
   }
 
@@ -363,20 +473,15 @@ const confirmUploadCrop = () => {
     closeUploadCropper();
     emit('imageLoaded', croppedDataUrl, 'upload');
   } else {
-    skipCropAndSend();
+    closeUploadCropper();
   }
-};
-
-const skipCropAndSend = () => {
-  const dataUrl = rawUploadDataUrl.value;
-  closeUploadCropper();
-  emit('imageLoaded', dataUrl, 'upload');
 };
 
 const closeUploadCropper = () => {
   isUploadCropperOpen.value = false;
   rawUploadDataUrl.value = '';
   stopCropDrag();
+  stopResizeDrag();
 };
 
 const triggerUpload = () => fileInputRef.value?.click();
@@ -982,7 +1087,99 @@ onBeforeUnmount(() => {
 .upload-draggable-box {
   max-width: none !important;
   max-height: none !important;
-  pointer-events: none;
+  pointer-events: auto !important;
   cursor: move;
+  user-select: none;
+  touch-action: none;
+}
+
+.upload-draggable-box .corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: #ef4444;
+  border-style: solid;
+  pointer-events: auto !important;
+  z-index: 10;
+}
+
+.upload-draggable-box .corner::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+}
+
+.upload-draggable-box .corner-tl {
+  top: -3px;
+  left: -3px;
+  border-width: 3.5px 0 0 3.5px;
+  border-top-left-radius: 6px;
+  cursor: nwse-resize;
+}
+
+.upload-draggable-box .corner-tr {
+  top: -3px;
+  right: -3px;
+  border-width: 3.5px 3.5px 0 0;
+  border-top-right-radius: 6px;
+  cursor: nesw-resize;
+}
+
+.upload-draggable-box .corner-bl {
+  bottom: -3px;
+  left: -3px;
+  border-width: 0 0 3.5px 3.5px;
+  border-bottom-left-radius: 6px;
+  cursor: nesw-resize;
+}
+
+.upload-draggable-box .corner-br {
+  bottom: -3px;
+  right: -3px;
+  border-width: 0 3.5px 3.5px 0;
+  border-bottom-right-radius: 6px;
+  cursor: nwse-resize;
+}
+
+/* 4 條邊框縮放把手 */
+.upload-draggable-box .resize-edge {
+  position: absolute;
+  pointer-events: auto !important;
+  z-index: 5;
+}
+
+.upload-draggable-box .edge-t {
+  top: -6px;
+  left: 20px;
+  right: 20px;
+  height: 12px;
+  cursor: ns-resize;
+}
+
+.upload-draggable-box .edge-b {
+  bottom: -6px;
+  left: 20px;
+  right: 20px;
+  height: 12px;
+  cursor: ns-resize;
+}
+
+.upload-draggable-box .edge-l {
+  left: -6px;
+  top: 20px;
+  bottom: 20px;
+  width: 12px;
+  cursor: ew-resize;
+}
+
+.upload-draggable-box .edge-r {
+  right: -6px;
+  top: 20px;
+  bottom: 20px;
+  width: 12px;
+  cursor: ew-resize;
 }
 </style>

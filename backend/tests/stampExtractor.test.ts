@@ -187,6 +187,76 @@ describe('StampExtractorService (TDD Unit Tests)', () => {
     expect(result.height).toBeLessThan(120);
     expect(result.boundingBox).toBeDefined();
   });
+
+  it('應成功高精度去背真實青藍色印章，徹底濾除黑字與陰影，且維持純淨自然之藍色墨水色彩', async () => {
+    const width = 200;
+    const height = 200;
+    const channels = 4;
+    const data = Buffer.alloc(width * height * channels);
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = (y * width + x) * channels;
+        // 模擬黃白底紙與斜向陰影
+        const shadow = Math.max(90, 240 - ((x + y) / 400) * 140);
+        let r = shadow;
+        let g = Math.max(0, shadow - 5);
+        let b = Math.max(0, shadow - 15); // 微暖偏黃
+
+        // 模擬黑字印刷文字 (x: 40~60, y: 40~45)
+        if (x >= 40 && x <= 60 && y >= 40 && y <= 45) {
+          r = 30;
+          g = 30;
+          b = 30;
+        }
+
+        // 模擬中央真實青藍色/海軍藍印章 (cx: 100, cy: 100, 半徑 25)
+        const dist = Math.hypot(x - 100, y - 100);
+        if (dist >= 15 && dist <= 28) {
+          // 青藍色印泥：R=45, G=110, B=195
+          r = 45;
+          g = 110;
+          b = 195;
+        }
+
+        data[idx] = r;
+        data[idx + 1] = g;
+        data[idx + 2] = b;
+        data[idx + 3] = 255;
+      }
+    }
+
+    const inputPng = await sharp(data, { raw: { width, height, channels } }).png().toBuffer();
+    const result = await stampExtractorService.extractStamp(inputPng, {
+      colorMode: 'blue',
+      threshold: 40,
+      shadowSuppression: 45,
+      autoCrop: false
+    });
+
+    expect(result.detectedColor).toBe('blue');
+
+    const { data: outRaw } = await sharp(result.imageBuffer)
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    // 1. 印章圓環處應完整保留，且 Alpha 高
+    const stampIdx = (100 * 200 + 120) * 4; // dist = 20
+    expect(outRaw[stampIdx + 3]).toBeGreaterThan(200);
+
+    // 2. 驗證色彩純淨度：綠色通道不可因 b*0.8 被污染至青色 (G 應被壓制 <= 90，B 應維持 >= 195)
+    expect(outRaw[stampIdx + 1]).toBeLessThanOrEqual(95);
+    expect(outRaw[stampIdx + 2]).toBeGreaterThanOrEqual(190);
+
+    // 3. 黑字區域應徹底濾除為透明
+    const blackTextIdx = (42 * 200 + 50) * 4;
+    expect(outRaw[blackTextIdx + 3]).toBe(0);
+
+    // 4. 陰影區域應徹底濾除為透明
+    const shadowIdx = (180 * 200 + 180) * 4;
+    expect(outRaw[shadowIdx + 3]).toBe(0);
+  });
 });
 
 

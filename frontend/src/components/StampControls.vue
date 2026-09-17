@@ -18,14 +18,14 @@
       <div class="slider-row">
         <div class="slider-meta">
           <span class="label-text" title="強化對暗黑灰影的 Gamma 濾除能力">🛡️ 陰影抑制</span>
-          <span class="slider-val">{{ modelValue.shadowSuppression }}%</span>
+          <span class="slider-val">{{ currentVal.shadowSuppression }}%</span>
         </div>
         <div class="slider-input-wrapper">
           <input
             type="range"
             min="0"
             max="100"
-            :value="modelValue.shadowSuppression"
+            :value="currentVal.shadowSuppression"
             @input="onRangeChange('shadowSuppression', $event)"
           />
         </div>
@@ -35,14 +35,14 @@
       <div class="slider-row">
         <div class="slider-meta">
           <span class="label-text" title="色度差判斷門檻，越低保留越多細節，過高可能掏空筆劃">⚖️ 去背靈敏度</span>
-          <span class="slider-val">{{ modelValue.threshold }}%</span>
+          <span class="slider-val">{{ currentVal.threshold }}%</span>
         </div>
         <div class="slider-input-wrapper">
           <input
             type="range"
             min="10"
             max="80"
-            :value="modelValue.threshold"
+            :value="currentVal.threshold"
             @input="onRangeChange('threshold', $event)"
           />
         </div>
@@ -52,19 +52,43 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { StampOptions } from '../types/stamp';
 
-const props = defineProps<{
-  modelValue: StampOptions;
-}>();
+const props = withDefaults(
+  defineProps<{
+    value?: StampOptions;
+    modelValue?: StampOptions;
+  }>(),
+  {
+    value: undefined,
+    modelValue: undefined
+  }
+);
 
 const emit = defineEmits<{
+  (e: 'input', value: StampOptions): void;
   (e: 'update:modelValue', value: StampOptions): void;
   (e: 'change', value: StampOptions): void;
 }>();
 
+const currentVal = computed<StampOptions>(() => {
+  return props.value || props.modelValue || {
+    colorMode: 'auto',
+    threshold: 40,
+    shadowSuppression: 40,
+    smoothness: 0,
+    colorBoost: 25,
+    autoCrop: true,
+    padding: 16,
+    rotation: 0,
+    sourceType: 'upload'
+  };
+});
+
 const updateOption = <K extends keyof StampOptions>(key: K, value: StampOptions[K]) => {
-  const next: StampOptions = { ...props.modelValue, [key]: value };
+  const next: StampOptions = { ...currentVal.value, [key]: value };
+  emit('input', next);
   emit('update:modelValue', next);
   emit('change', next);
 };
@@ -85,8 +109,9 @@ const resetDefaults = () => {
     autoCrop: true,
     padding: 16,
     rotation: 0,
-    sourceType: props.modelValue.sourceType
+    sourceType: currentVal.value.sourceType
   };
+  emit('input', defaultOpts);
   emit('update:modelValue', defaultOpts);
   emit('change', defaultOpts);
 };

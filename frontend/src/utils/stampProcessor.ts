@@ -53,7 +53,7 @@ export class StampProcessor {
 
     if (!isCamera) {
       const pass1ShadowSuppression = 40;
-      const pass1Threshold = 70;
+      const pass1Threshold = resolvedColor === 'red' ? 70 : 45;
       const pass1ShadowGamma = 1.0 + (pass1ShadowSuppression / 100) * 1.5;
       const pass1TVal = (pass1Threshold / 100) * 120 + 10;
       const pass1SmoothRange = Math.max(1, (options.smoothness / 100) * 40);
@@ -73,9 +73,18 @@ export class StampProcessor {
           continue;
         }
 
-        const maxNonTarget = resolvedColor === 'red' ? Math.max(g, b) : Math.max(r, g);
-        const targetComp = resolvedColor === 'red' ? r : b;
-        const diff = targetComp - maxNonTarget;
+        let diff = 0;
+        if (resolvedColor === 'red') {
+          const maxNonTarget = Math.max(g, b);
+          diff = r - maxNonTarget;
+        } else {
+          const nonTargetAvg = (r + g) * 0.5;
+          const nonTargetMax = Math.max(r, g);
+          const blueOpponent = b - (nonTargetAvg * 0.75 + nonTargetMax * 0.25);
+          if (b > nonTargetAvg && (b > r || b > g)) {
+            diff = Math.max(0, blueOpponent);
+          }
+        }
 
         if (diff <= 0) {
           pass1RawData[idx + 3] = 0;
@@ -83,7 +92,8 @@ export class StampProcessor {
         }
 
         const maxRGB = Math.max(r, g, b);
-        const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, pass1ShadowGamma - 1.0);
+        const effectiveLuma = resolvedColor === 'blue' ? Math.min(255, maxRGB * 1.35) : maxRGB;
+        const luminanceFactor = Math.pow(Math.max(1, effectiveLuma) / 255.0, pass1ShadowGamma - 1.0);
         const score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
 
         if (score <= pass1LowBound) {
@@ -162,9 +172,18 @@ export class StampProcessor {
         continue;
       }
 
-      const maxNonTarget = resolvedColor === 'red' ? Math.max(g, b) : Math.max(r, g);
-      const targetComp = resolvedColor === 'red' ? r : b;
-      const diff = targetComp - maxNonTarget;
+      let diff = 0;
+      if (resolvedColor === 'red') {
+        const maxNonTarget = Math.max(g, b);
+        diff = r - maxNonTarget;
+      } else {
+        const nonTargetAvg = (r + g) * 0.5;
+        const nonTargetMax = Math.max(r, g);
+        const blueOpponent = b - (nonTargetAvg * 0.75 + nonTargetMax * 0.25);
+        if (b > nonTargetAvg && (b > r || b > g)) {
+          diff = Math.max(0, blueOpponent);
+        }
+      }
 
       if (diff <= 0) {
         cropRawData[idx + 3] = 0;
@@ -172,7 +191,8 @@ export class StampProcessor {
       }
 
       const maxRGB = Math.max(r, g, b);
-      const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, shadowGamma - 1.0);
+      const effectiveLuma = resolvedColor === 'blue' ? Math.min(255, maxRGB * 1.35) : maxRGB;
+      const luminanceFactor = Math.pow(Math.max(1, effectiveLuma) / 255.0, shadowGamma - 1.0);
       const score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
 
       let alpha = 0;
@@ -192,8 +212,8 @@ export class StampProcessor {
           cropRawData[idx + 1] = Math.max(0, Math.round(g * 0.7));
           cropRawData[idx + 2] = Math.max(0, Math.round(b * 0.7));
         } else {
-          cropRawData[idx] = Math.max(0, Math.round(r * 0.7));
-          cropRawData[idx + 1] = Math.max(0, Math.round(b * 0.8));
+          cropRawData[idx] = Math.max(0, Math.round(r * 0.65));
+          cropRawData[idx + 1] = Math.max(0, Math.round(g * 0.75));
           cropRawData[idx + 2] = Math.min(255, Math.round(b * boostFactor));
         }
         cropRawData[idx + 3] = alpha;
@@ -513,8 +533,12 @@ export class StampProcessor {
       const rDiff = r - Math.max(g, b);
       if (rDiff > 20) redScore += rDiff;
 
-      const bDiff = b - Math.max(r, g);
-      if (bDiff > 20) blueScore += bDiff;
+      const nonTargetAvg = (r + g) * 0.5;
+      const nonTargetMax = Math.max(r, g);
+      const bOpponent = b - (nonTargetAvg * 0.75 + nonTargetMax * 0.25);
+      if (b > nonTargetAvg && bOpponent > 15) {
+        blueScore += bOpponent;
+      }
     }
 
     return blueScore > redScore ? 'blue' : 'red';

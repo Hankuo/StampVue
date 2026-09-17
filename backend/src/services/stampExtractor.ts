@@ -55,7 +55,7 @@ export class StampExtractorService {
 
     if (!isCamera) {
       const pass1ShadowSuppression = 40;
-      const pass1Threshold = 70;
+      const pass1Threshold = resolvedColorMode === 'red' ? 70 : 45;
       const pass1ShadowGamma = 1.0 + (pass1ShadowSuppression / 100) * 1.5;
       const pass1TVal = (pass1Threshold / 100) * 120 + 10;
       const pass1SmoothRange = Math.max(1, (smoothness / 100) * 40);
@@ -75,9 +75,18 @@ export class StampExtractorService {
           continue;
         }
 
-        const maxNonTarget = resolvedColorMode === 'red' ? Math.max(g, b) : Math.max(r, g);
-        const targetComp = resolvedColorMode === 'red' ? r : b;
-        const diff = targetComp - maxNonTarget;
+        let diff = 0;
+        if (resolvedColorMode === 'red') {
+          const maxNonTarget = Math.max(g, b);
+          diff = r - maxNonTarget;
+        } else {
+          const nonTargetAvg = (r + g) * 0.5;
+          const nonTargetMax = Math.max(r, g);
+          const blueOpponent = b - (nonTargetAvg * 0.75 + nonTargetMax * 0.25);
+          if (b > nonTargetAvg && (b > r || b > g)) {
+            diff = Math.max(0, blueOpponent);
+          }
+        }
 
         if (diff <= 0) {
           pass1RawData[idx + 3] = 0;
@@ -85,7 +94,8 @@ export class StampExtractorService {
         }
 
         const maxRGB = Math.max(r, g, b);
-        const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, pass1ShadowGamma - 1.0);
+        const effectiveLuma = resolvedColorMode === 'blue' ? Math.min(255, maxRGB * 1.35) : maxRGB;
+        const luminanceFactor = Math.pow(Math.max(1, effectiveLuma) / 255.0, pass1ShadowGamma - 1.0);
         const score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
 
         if (score <= pass1LowBound) {
@@ -140,9 +150,18 @@ export class StampExtractorService {
           continue;
         }
 
-        const maxNonTarget = resolvedColorMode === 'red' ? Math.max(g, b) : Math.max(r, g);
-        const targetComp = resolvedColorMode === 'red' ? r : b;
-        const diff = targetComp - maxNonTarget;
+        let diff = 0;
+        if (resolvedColorMode === 'red') {
+          const maxNonTarget = Math.max(g, b);
+          diff = r - maxNonTarget;
+        } else {
+          const nonTargetAvg = (r + g) * 0.5;
+          const nonTargetMax = Math.max(r, g);
+          const blueOpponent = b - (nonTargetAvg * 0.75 + nonTargetMax * 0.25);
+          if (b > nonTargetAvg && (b > r || b > g)) {
+            diff = Math.max(0, blueOpponent);
+          }
+        }
 
         if (diff <= 0) {
           outputData[idx + 3] = 0;
@@ -150,7 +169,8 @@ export class StampExtractorService {
         }
 
         const maxRGB = Math.max(r, g, b);
-        const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, shadowGamma - 1.0);
+        const effectiveLuma = resolvedColorMode === 'blue' ? Math.min(255, maxRGB * 1.35) : maxRGB;
+        const luminanceFactor = Math.pow(Math.max(1, effectiveLuma) / 255.0, shadowGamma - 1.0);
         const score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
 
         let alpha = 0;
@@ -170,8 +190,8 @@ export class StampExtractorService {
             outputData[idx + 1] = Math.max(0, Math.round(g * 0.7));
             outputData[idx + 2] = Math.max(0, Math.round(b * 0.7));
           } else {
-            outputData[idx] = Math.max(0, Math.round(r * 0.7));
-            outputData[idx + 1] = Math.max(0, Math.round(b * 0.8));
+            outputData[idx] = Math.max(0, Math.round(r * 0.65));
+            outputData[idx + 1] = Math.max(0, Math.round(g * 0.75));
             outputData[idx + 2] = Math.min(255, Math.round(b * boostFactor));
           }
           outputData[idx + 3] = alpha;
@@ -486,13 +506,15 @@ export class StampExtractorService {
       const b = rawData[idx + 2];
 
       const redDiff = r - Math.max(g, b);
-      if (redDiff > 25) {
+      if (redDiff > 20) {
         redScoreTotal += redDiff;
       }
 
-      const blueDiff = b - Math.max(r, g);
-      if (blueDiff > 25) {
-        blueScoreTotal += blueDiff;
+      const nonTargetAvg = (r + g) * 0.5;
+      const nonTargetMax = Math.max(r, g);
+      const bOpponent = b - (nonTargetAvg * 0.75 + nonTargetMax * 0.25);
+      if (b > nonTargetAvg && bOpponent > 15) {
+        blueScoreTotal += bOpponent;
       }
     }
 

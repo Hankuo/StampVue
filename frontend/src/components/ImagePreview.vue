@@ -165,6 +165,7 @@ const emit = defineEmits<{
   (e: 'update:rotation', angle: number): void;
   (e: 'rotate', angle: number): void;
   (e: 'update:colorMode', mode: 'red' | 'blue'): void;
+  (e: 'update:color-mode', mode: 'red' | 'blue'): void;
 }>();
 
 // 預設為純去背顯示
@@ -202,6 +203,7 @@ const onColorChange = (e: Event) => {
   const target = e.target as HTMLSelectElement;
   const mode = target.value as 'red' | 'blue';
   emit('update:colorMode', mode);
+  emit('update:color-mode', mode);
 };
 
 const currentBg = ref<PreviewBackground>('checkerboard');
