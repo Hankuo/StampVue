@@ -137,8 +137,8 @@ export class StampExtractorService {
     // Pass 2: 執行去背 (全圖或依 Pass 1 裁切印章原圖位置)
     // -------------------------------------------------------------
     const pass2Threshold = threshold;
-    const tVal = resolvedColorMode === 'blue' ? 4 + (pass2Threshold / 100) * 45 : (pass2Threshold / 100) * 120 + 10;
-    const smoothRange = resolvedColorMode === 'blue' ? Math.max(2, (smoothness / 100) * 20 + 6) : Math.max(1, (smoothness / 100) * 40);
+    const tVal = resolvedColorMode === 'blue' ? 3 + (pass2Threshold / 100) * 35 : (pass2Threshold / 100) * 120 + 10;
+    const smoothRange = resolvedColorMode === 'blue' ? Math.max(2, (smoothness / 100) * 15 + 5) : Math.max(1, (smoothness / 100) * 40);
     const lowBound = Math.max(0, tVal - smoothRange);
     const highBound = tVal + smoothRange;
 
@@ -172,6 +172,7 @@ export class StampExtractorService {
 
         let diff = 0;
         let score = 0;
+        let blueChroma = 0;
 
         if (resolvedColorMode === 'red') {
           const maxNonTarget = Math.max(g, b);
@@ -202,7 +203,7 @@ export class StampExtractorService {
           }
           diff = rawDiff - highLightFloor;
           const maxRGB = Math.max(r, g, b);
-          const blueChroma = diff / Math.max(1, b);
+          blueChroma = diff / Math.max(1, b);
 
           // 海軍深藍墨水亮度保護
           const effectiveLuma = Math.min(255, maxRGB + blueChroma * 180);
@@ -230,9 +231,14 @@ export class StampExtractorService {
             outputData[idx + 1] = Math.max(0, Math.round(g * 0.7));
             outputData[idx + 2] = Math.max(0, Math.round(b * 0.7));
           } else {
-            outputData[idx] = Math.max(0, Math.round(r * 0.6));
-            outputData[idx + 1] = Math.max(0, Math.round(g * 0.7));
-            outputData[idx + 2] = Math.min(255, Math.round(b * 1.35));
+            const boostRate = (colorBoost / 100);
+            const blueBoost = Math.round(Math.min(60, blueChroma * 120 * boostRate));
+            const targetB = Math.min(255, Math.round(b * (1.25 + boostRate * 0.4) + blueBoost));
+            const targetG = Math.max(0, Math.round(g * (0.68 - boostRate * 0.15)));
+            const targetR = Math.max(0, Math.round(r * (0.55 - boostRate * 0.2)));
+            outputData[idx] = targetR;
+            outputData[idx + 1] = targetG;
+            outputData[idx + 2] = targetB;
           }
           outputData[idx + 3] = alpha;
         } else {

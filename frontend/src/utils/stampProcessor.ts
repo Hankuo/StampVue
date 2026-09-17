@@ -175,8 +175,8 @@ export class StampProcessor {
     const shadowGamma = 1.0 + (options.shadowSuppression / 100) * 1.5;
     const boostFactor = 1.0 + (options.colorBoost / 100) * 0.8;
     const pass2Threshold = options.threshold;
-    const tVal = resolvedColor === 'blue' ? 4 + (pass2Threshold / 100) * 45 : (pass2Threshold / 100) * 120 + 10;
-    const smoothRange = resolvedColor === 'blue' ? Math.max(2, (options.smoothness / 100) * 20 + 6) : Math.max(1, (options.smoothness / 100) * 40);
+    const tVal = resolvedColor === 'blue' ? 3 + (pass2Threshold / 100) * 35 : (pass2Threshold / 100) * 120 + 10;
+    const smoothRange = resolvedColor === 'blue' ? Math.max(2, (options.smoothness / 100) * 15 + 5) : Math.max(1, (options.smoothness / 100) * 40);
     const lowBound = Math.max(0, tVal - smoothRange);
     const highBound = tVal + smoothRange;
 
@@ -194,6 +194,7 @@ export class StampProcessor {
 
       let diff = 0;
       let score = 0;
+      let blueChroma = 0;
 
       if (resolvedColor === 'red') {
         const maxNonTarget = Math.max(g, b);
@@ -224,7 +225,7 @@ export class StampProcessor {
         }
         diff = rawDiff - highLightFloor;
         const maxRGB = Math.max(r, g, b);
-        const blueChroma = diff / Math.max(1, b);
+        blueChroma = diff / Math.max(1, b);
 
         // 海軍深藍墨水亮度保護
         const effectiveLuma = Math.min(255, maxRGB + blueChroma * 180);
@@ -252,9 +253,11 @@ export class StampProcessor {
           cropRawData[idx + 1] = Math.max(0, Math.round(g * 0.7));
           cropRawData[idx + 2] = Math.max(0, Math.round(b * 0.7));
         } else {
-          cropRawData[idx] = Math.max(0, Math.round(r * 0.6));
-          cropRawData[idx + 1] = Math.max(0, Math.round(g * 0.7));
-          cropRawData[idx + 2] = Math.min(255, Math.round(b * 1.35));
+          const boostRate = (options.colorBoost / 100);
+          const blueBoost = Math.round(Math.min(60, blueChroma * 120 * boostRate));
+          cropRawData[idx] = Math.max(0, Math.round(r * (0.55 - boostRate * 0.2)));
+          cropRawData[idx + 1] = Math.max(0, Math.round(g * (0.68 - boostRate * 0.15)));
+          cropRawData[idx + 2] = Math.min(255, Math.round(b * (1.25 + boostRate * 0.4) + blueBoost));
         }
         cropRawData[idx + 3] = alpha;
       } else {

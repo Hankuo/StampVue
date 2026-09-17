@@ -4,6 +4,27 @@
     <div class="preview-header-compact">
       <div class="header-left">
         <span class="preview-title">預覽</span>
+        <!-- 預覽底色快速切換 (白紙 / 透明棋盤) -->
+        <div class="bg-toggle-group">
+          <button
+            type="button"
+            class="bg-btn"
+            :class="{ active: currentBg === 'white' }"
+            title="白紙底色 (真實蓋印清晰呈現)"
+            @click="currentBg = 'white'"
+          >
+            📄 白紙
+          </button>
+          <button
+            type="button"
+            class="bg-btn"
+            :class="{ active: currentBg === 'checkerboard' }"
+            title="透明棋盤 (背景透明度檢查)"
+            @click="currentBg = 'checkerboard'"
+          >
+            🏁 棋盤
+          </button>
+        </div>
       </div>
       <div class="header-right">
         <!-- 去背 / 對比 快速切換膠囊 (預設去背) -->
@@ -206,7 +227,7 @@ const onColorChange = (e: Event) => {
   emit('update:color-mode', mode);
 };
 
-const currentBg = ref<PreviewBackground>('checkerboard');
+const currentBg = ref<PreviewBackground>('white');
 const splitPos = ref<number>(50);
 const zoomScale = ref<number>(1);
 const splitContainerRef = ref<HTMLElement | null>(null);
@@ -300,10 +321,50 @@ onBeforeUnmount(() => {
   gap: 8px;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .preview-title {
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-primary);
+}
+
+/* 預覽底色切換按鈕組 */
+.bg-toggle-group {
+  display: inline-flex;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 2px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+}
+
+.bg-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.725rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.bg-btn:hover {
+  color: var(--text-primary);
+}
+
+.bg-btn.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .header-right {
