@@ -152,34 +152,89 @@
             <button class="close-btn" type="button" @click.stop="closeUploadCropper">✕</button>
           </div>
 
-          <!-- 裁切框尺寸快速調整 -->
+          <!-- 尺寸與縮放工具列 (支援裁切框尺寸與照片縮放微調) -->
           <div class="crop-size-toolbar">
-            <span class="toolbar-label">裁切框尺寸:</span>
-            <div class="size-btn-group">
-              <button
-                type="button"
-                class="size-btn"
-                :class="{ active: Math.round(uploadCropSize) === 140 }"
-                @click.stop="uploadCropSize = 140"
-              >
-                小印 (140px)
-              </button>
-              <button
-                type="button"
-                class="size-btn"
-                :class="{ active: Math.round(uploadCropSize) === 180 }"
-                @click.stop="uploadCropSize = 180"
-              >
-                標準 (180px)
-              </button>
-              <button
-                type="button"
-                class="size-btn"
-                :class="{ active: Math.round(uploadCropSize) === 240 }"
-                @click.stop="uploadCropSize = 240"
-              >
-                大印 (240px)
-              </button>
+            <!-- 1. 裁切框尺寸與縮放按鍵 -->
+            <div class="toolbar-section">
+              <span class="toolbar-label">裁切框:</span>
+              <div class="size-btn-group">
+                <button
+                  type="button"
+                  class="size-btn step-btn"
+                  title="縮小裁切框 (-20px)"
+                  @click.stop="zoomCropBox(-20)"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  縮小
+                </button>
+                <button
+                  type="button"
+                  class="size-btn"
+                  :class="{ active: Math.round(uploadCropSize) === 140 }"
+                  @click.stop="uploadCropSize = 140"
+                >
+                  140px
+                </button>
+                <button
+                  type="button"
+                  class="size-btn"
+                  :class="{ active: Math.round(uploadCropSize) === 180 }"
+                  @click.stop="uploadCropSize = 180"
+                >
+                  180px
+                </button>
+                <button
+                  type="button"
+                  class="size-btn"
+                  :class="{ active: Math.round(uploadCropSize) === 240 }"
+                  @click.stop="uploadCropSize = 240"
+                >
+                  240px
+                </button>
+                <button
+                  type="button"
+                  class="size-btn step-btn"
+                  title="放大裁切框 (+20px)"
+                  @click.stop="zoomCropBox(20)"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  放大
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. 照片視角縮放按鍵 -->
+            <div class="toolbar-section">
+              <span class="toolbar-label">照片縮放:</span>
+              <div class="size-btn-group image-zoom-group">
+                <button
+                  type="button"
+                  class="size-btn step-btn"
+                  title="縮小照片視角 (-20%)"
+                  :disabled="uploadImageZoom <= 0.5"
+                  @click.stop="zoomUploadImage(-0.2)"
+                >
+                  －
+                </button>
+                <span class="zoom-indicator">{{ Math.round(uploadImageZoom * 100) }}%</span>
+                <button
+                  type="button"
+                  class="size-btn step-btn"
+                  title="放大照片視角 (+20%)"
+                  :disabled="uploadImageZoom >= 3.0"
+                  @click.stop="zoomUploadImage(0.2)"
+                >
+                  ＋
+                </button>
+                <button
+                  type="button"
+                  class="size-btn step-btn"
+                  title="重設照片縮放 (100%)"
+                  @click.stop="resetUploadImageZoom"
+                >
+                  ⟲
+                </button>
+              </div>
             </div>
           </div>
 
@@ -195,6 +250,10 @@
               :src="rawUploadDataUrl"
               alt="待裁切照片"
               class="upload-crop-img"
+              :style="{
+                transform: `scale(${uploadImageZoom})`,
+                transition: 'transform 0.15s ease'
+              }"
               draggable="false"
             />
             <div
@@ -275,9 +334,22 @@ const isUploadCropperOpen = ref<boolean>(false);
 const rawUploadDataUrl = ref<string>('');
 const uploadCropSize = ref<number>(180);
 const uploadCropPos = ref<{ x: number; y: number }>({ x: 0, y: 0 });
+const uploadImageZoom = ref<number>(1);
 const uploadContainerRef = ref<HTMLDivElement | null>(null);
 const uploadImgRef = ref<HTMLImageElement | null>(null);
 const uploadCropBoxRef = ref<HTMLDivElement | null>(null);
+
+const zoomCropBox = (delta: number) => {
+  uploadCropSize.value = Math.max(50, Math.min(600, Math.round(uploadCropSize.value + delta)));
+};
+
+const zoomUploadImage = (delta: number) => {
+  uploadImageZoom.value = Math.max(0.5, Math.min(3.0, Number((uploadImageZoom.value + delta).toFixed(2))));
+};
+
+const resetUploadImageZoom = () => {
+  uploadImageZoom.value = 1;
+};
 
 let isDraggingUploadCrop = false;
 let dragStartX = 0;
@@ -488,6 +560,7 @@ const confirmUploadCrop = () => {
 const closeUploadCropper = () => {
   isUploadCropperOpen.value = false;
   rawUploadDataUrl.value = '';
+  uploadImageZoom.value = 1;
   stopCropDrag();
   stopResizeDrag();
 };
@@ -517,6 +590,7 @@ const readFile = (file: File) => {
       rawUploadDataUrl.value = dataUrl;
       uploadCropPos.value = { x: 0, y: 0 };
       uploadCropSize.value = 180;
+      uploadImageZoom.value = 1;
       isUploadCropperOpen.value = true;
     }
   };
@@ -877,11 +951,20 @@ onBeforeUnmount(() => {
 .live-camera-modal .crop-size-toolbar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 10px;
   background: rgba(0, 0, 0, 0.35);
   padding: 8px 12px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
+}
+
+.live-camera-modal .toolbar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .live-camera-modal .toolbar-label {
@@ -892,7 +975,42 @@ onBeforeUnmount(() => {
 
 .live-camera-modal .size-btn-group {
   display: flex;
+  align-items: center;
   gap: 6px;
+}
+
+.live-camera-modal .step-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.live-camera-modal .step-btn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+.live-camera-modal .step-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.live-camera-modal .zoom-indicator {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 44px;
+  text-align: center;
+  padding: 3px 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .live-camera-modal .size-btn {
