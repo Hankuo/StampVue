@@ -38,9 +38,10 @@ export class StampProcessor {
     const rotTotalPixels = rotWidth * rotHeight;
 
     // 1. 自動色彩判定
+    const detectedColor = this.detectDominantColor(rotRawData, rotWidth, rotHeight);
     const resolvedColor =
       options.colorMode === 'auto'
-        ? this.detectDominantColor(rotRawData, rotWidth, rotHeight)
+        ? detectedColor
         : options.colorMode;
 
     const isCamera = options.sourceType === 'camera';
@@ -228,7 +229,7 @@ export class StampProcessor {
       blob,
       width: boundingBox.width,
       height: boundingBox.height,
-      detectedColor: resolvedColor,
+      detectedColor,
       processingTimeMs: Math.round(endTime - startTime),
       boundingBox
     };
@@ -489,10 +490,10 @@ export class StampProcessor {
   }
 
   /**
-   * 自動偵測色彩
+   * 自動偵測色彩 (紅印 vs 藍印)
    */
-  private static detectDominantColor(
-    rawData: Uint8ClampedArray,
+  public static detectDominantColor(
+    rawData: Uint8ClampedArray | Uint8Array,
     width: number,
     height: number
   ): 'red' | 'blue' {
@@ -506,15 +507,35 @@ export class StampProcessor {
       const r = rawData[idx];
       const g = rawData[idx + 1];
       const b = rawData[idx + 2];
+      const a = rawData[idx + 3];
+      if (a === 0) continue;
 
       const rDiff = r - Math.max(g, b);
-      if (rDiff > 25) redScore += rDiff;
+      if (rDiff > 20) redScore += rDiff;
 
       const bDiff = b - Math.max(r, g);
-      if (bDiff > 25) blueScore += bDiff;
+      if (bDiff > 20) blueScore += bDiff;
     }
 
     return blueScore > redScore ? 'blue' : 'red';
+  }
+
+  /**
+   * 針對 Image 元素快速判定印章主要墨色 (紅印 vs 藍印)
+   */
+  public static detectImageColor(imageSource: HTMLImageElement | HTMLCanvasElement): 'red' | 'blue' {
+    const canvas = document.createElement('canvas');
+    const maxDim = 300;
+    const scale = Math.min(1, maxDim / Math.max(imageSource.width, imageSource.height));
+    const w = Math.max(1, Math.round(imageSource.width * scale));
+    const h = Math.max(1, Math.round(imageSource.height * scale));
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return 'red';
+    ctx.drawImage(imageSource, 0, 0, w, h);
+    const imgData = ctx.getImageData(0, 0, w, h);
+    return this.detectDominantColor(imgData.data, w, h);
   }
 
   /**

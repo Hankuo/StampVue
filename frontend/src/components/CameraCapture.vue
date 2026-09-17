@@ -1,45 +1,71 @@
 <template>
-  <div class="camera-capture-card glass-panel">
-    <div class="capture-header">
-      <div class="title-wrap">
-        <span class="step-badge">1</span>
-        <h3>取得印章影像</h3>
-      </div>
-      <span class="sub-tip">支援照片檔案上傳、拖曳上傳或即時視訊鏡頭拍照</span>
-    </div>
+  <div class="camera-capture-card glass-panel" :class="{ 'is-compact': hasImage }">
+    <!-- 隱藏原生檔案選擇器 -->
+    <input
+      ref="fileInputRef"
+      type="file"
+      accept="image/*"
+      class="hidden-input"
+      @change="handleFileSelect"
+    />
 
-    <!-- 檔案上傳與即時鏡頭拍攝區域 -->
+    <!-- 情況 A: 已載入圖片時的超精簡緊湊列 (Compact Studio Bar) -->
     <div
-      class="dropzone"
+      v-if="hasImage"
+      class="compact-source-box"
       :class="{ 'is-dragging': isDragging }"
       @dragover.prevent="isDragging = true"
       @dragleave.prevent="isDragging = false"
       @drop.prevent="handleDrop"
     >
-      <input
-        ref="fileInputRef"
-        type="file"
-        accept="image/*"
-        class="hidden-input"
-        @change="handleFileSelect"
-      />
-
-      <div class="dropzone-content">
-        <div class="action-buttons-group">
-          <!-- 檔案上傳按鈕 -->
-          <button class="btn btn-primary" type="button" @click.stop="triggerUpload">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            選擇照片檔案
-          </button>
-
-          <!-- 視訊鏡頭 Live 拍照 (Desktop / Mobile WebRTC) -->
-          <button class="btn btn-secondary" type="button" @click.stop="openLiveCamera">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-            即時視訊拍攝
-          </button>
+      <div class="compact-info">
+        <span class="compact-icon">📷</span>
+        <div class="compact-text">
+          <span class="compact-title">印章來源</span>
         </div>
+      </div>
+      <div class="compact-buttons">
+        <button class="btn btn-secondary btn-sm" type="button" @click.stop="triggerUpload">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          選擇相片
+        </button>
+        <button class="btn btn-secondary btn-sm" type="button" @click.stop="openLiveCamera">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          拍照
+        </button>
+      </div>
+    </div>
 
-        <p class="dropzone-hint">或將紙張印章相片直接拖曳至此處上傳</p>
+    <!-- 情況 B: 尚未載入圖片時的完整引導拖曳區 -->
+    <div v-else class="full-capture-wrap">
+      <div class="capture-header">
+        <div class="title-wrap">
+          <span class="step-badge">1</span>
+          <h3>取得印章影像</h3>
+        </div>
+        <span class="sub-tip">支援照片檔案上傳、拖曳上傳或即時視訊鏡頭拍照</span>
+      </div>
+
+      <div
+        class="dropzone"
+        :class="{ 'is-dragging': isDragging }"
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop.prevent="handleDrop"
+      >
+        <div class="dropzone-content">
+          <div class="action-buttons-group">
+            <button class="btn btn-primary" type="button" @click.stop="triggerUpload">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              選擇照片檔案
+            </button>
+            <button class="btn btn-secondary" type="button" @click.stop="openLiveCamera">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+              拍照
+            </button>
+          </div>
+          <p class="dropzone-hint">或將紙張印章相片直接拖曳至此處上傳</p>
+        </div>
       </div>
     </div>
 
@@ -114,11 +140,109 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- 相片檔案上傳後之互動裁切取景 Modal (以 Teleport 掛載於 body) -->
+    <Teleport to="body">
+      <div v-if="isUploadCropperOpen" class="live-camera-modal upload-cropper-modal">
+        <div class="modal-backdrop" @click.stop="closeUploadCropper"></div>
+        <div class="modal-card glass-panel">
+          <div class="modal-header">
+            <div class="modal-title-row">
+              <h4>裁切印章取景</h4>
+              <span class="crop-guide-tip">拖曳紅框對準印章主體</span>
+            </div>
+            <button class="close-btn" type="button" @click.stop="closeUploadCropper">✕</button>
+          </div>
+
+          <!-- 裁切框尺寸快速調整 -->
+          <div class="crop-size-toolbar">
+            <span class="toolbar-label">裁切框尺寸:</span>
+            <div class="size-btn-group">
+              <button
+                type="button"
+                class="size-btn"
+                :class="{ active: uploadCropSize === 140 }"
+                @click.stop="uploadCropSize = 140"
+              >
+                小印 (140px)
+              </button>
+              <button
+                type="button"
+                class="size-btn"
+                :class="{ active: uploadCropSize === 180 }"
+                @click.stop="uploadCropSize = 180"
+              >
+                標準 (180px)
+              </button>
+              <button
+                type="button"
+                class="size-btn"
+                :class="{ active: uploadCropSize === 240 }"
+                @click.stop="uploadCropSize = 240"
+              >
+                大印 (240px)
+              </button>
+            </div>
+          </div>
+
+          <!-- 圖片容器與可拖曳紅框 -->
+          <div
+            ref="uploadContainerRef"
+            class="video-container upload-crop-stage"
+            @mousedown="startCropDrag"
+            @touchstart.passive="startCropDrag"
+          >
+            <img
+              ref="uploadImgRef"
+              :src="rawUploadDataUrl"
+              alt="待裁切照片"
+              class="upload-crop-img"
+              draggable="false"
+            />
+            <div
+              ref="uploadCropBoxRef"
+              class="crosshair-guide upload-draggable-box"
+              :style="{
+                width: `${uploadCropSize}px`,
+                height: `${uploadCropSize}px`,
+                transform: `translate(calc(-50% + ${uploadCropPos.x}px), calc(-50% + ${uploadCropPos.y}px))`
+              }"
+            >
+              <div class="corner corner-tl"></div>
+              <div class="corner corner-tr"></div>
+              <div class="corner corner-bl"></div>
+              <div class="corner corner-br"></div>
+              <div class="crosshair-center"></div>
+              <span class="guide-tag">🎯 拖曳紅框移動對準</span>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn btn-secondary" type="button" @click.stop="skipCropAndSend">
+              略過裁切 (全圖)
+            </button>
+            <button class="btn btn-primary btn-shutter" type="button" @click.stop.prevent="confirmUploadCrop">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              完成裁切並去背
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onBeforeUnmount } from 'vue';
+
+withDefaults(
+  defineProps<{
+    hasImage?: boolean;
+  }>(),
+  {
+    hasImage: false
+  }
+);
 
 const emit = defineEmits<{
   (e: 'imageLoaded', dataUrl: string, source: 'camera' | 'upload'): void;
@@ -133,12 +257,135 @@ const isDragging = ref<boolean>(false);
 const isLiveCameraOpen = ref<boolean>(false);
 let mediaStream: MediaStream | null = null;
 
+// 上傳相片裁切取景狀態
+const isUploadCropperOpen = ref<boolean>(false);
+const rawUploadDataUrl = ref<string>('');
+const uploadCropSize = ref<number>(180);
+const uploadCropPos = ref<{ x: number; y: number }>({ x: 0, y: 0 });
+const uploadContainerRef = ref<HTMLDivElement | null>(null);
+const uploadImgRef = ref<HTMLImageElement | null>(null);
+const uploadCropBoxRef = ref<HTMLDivElement | null>(null);
+
+let isDraggingUploadCrop = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let initialCropX = 0;
+let initialCropY = 0;
+
+const startCropDrag = (e: MouseEvent | TouchEvent) => {
+  isDraggingUploadCrop = true;
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  dragStartX = clientX;
+  dragStartY = clientY;
+  initialCropX = uploadCropPos.value.x;
+  initialCropY = uploadCropPos.value.y;
+
+  window.addEventListener('mousemove', onCropDragMove);
+  window.addEventListener('mouseup', stopCropDrag);
+  window.addEventListener('touchmove', onCropDragMove);
+  window.addEventListener('touchend', stopCropDrag);
+};
+
+const onCropDragMove = (e: MouseEvent | TouchEvent) => {
+  if (!isDraggingUploadCrop) return;
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  const dx = clientX - dragStartX;
+  const dy = clientY - dragStartY;
+
+  uploadCropPos.value = {
+    x: initialCropX + dx,
+    y: initialCropY + dy
+  };
+};
+
+const stopCropDrag = () => {
+  isDraggingUploadCrop = false;
+  window.removeEventListener('mousemove', onCropDragMove);
+  window.removeEventListener('mouseup', stopCropDrag);
+  window.removeEventListener('touchmove', onCropDragMove);
+  window.removeEventListener('touchend', stopCropDrag);
+};
+
+const confirmUploadCrop = () => {
+  if (!uploadImgRef.value || !uploadCropBoxRef.value) {
+    skipCropAndSend();
+    return;
+  }
+  const img = uploadImgRef.value;
+  const box = uploadCropBoxRef.value;
+
+  const imgRect = img.getBoundingClientRect();
+  const boxRect = box.getBoundingClientRect();
+
+  const natW = img.naturalWidth;
+  const natH = img.naturalHeight;
+
+  if (imgRect.width === 0 || imgRect.height === 0 || natW === 0 || natH === 0) {
+    skipCropAndSend();
+    return;
+  }
+
+  const scaleX = natW / imgRect.width;
+  const scaleY = natH / imgRect.height;
+
+  const relX = boxRect.left - imgRect.left;
+  const relY = boxRect.top - imgRect.top;
+
+  let cropX = relX * scaleX;
+  let cropY = relY * scaleY;
+  let cropW = boxRect.width * scaleX;
+  let cropH = boxRect.height * scaleY;
+
+  cropX = Math.max(0, Math.min(natW - 1, cropX));
+  cropY = Math.max(0, Math.min(natH - 1, cropY));
+  cropW = Math.max(10, Math.min(cropW, natW - cropX));
+  cropH = Math.max(10, Math.min(cropH, natH - cropY));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(cropW);
+  canvas.height = Math.round(cropH);
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.drawImage(
+      img,
+      cropX,
+      cropY,
+      cropW,
+      cropH,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+    const croppedDataUrl = canvas.toDataURL('image/png');
+    closeUploadCropper();
+    emit('imageLoaded', croppedDataUrl, 'upload');
+  } else {
+    skipCropAndSend();
+  }
+};
+
+const skipCropAndSend = () => {
+  const dataUrl = rawUploadDataUrl.value;
+  closeUploadCropper();
+  emit('imageLoaded', dataUrl, 'upload');
+};
+
+const closeUploadCropper = () => {
+  isUploadCropperOpen.value = false;
+  rawUploadDataUrl.value = '';
+  stopCropDrag();
+};
+
 const triggerUpload = () => fileInputRef.value?.click();
 
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
   if (file) readFile(file);
+  target.value = '';
 };
 
 const handleDrop = (event: DragEvent) => {
@@ -154,7 +401,10 @@ const readFile = (file: File) => {
   reader.onload = (e) => {
     const dataUrl = e.target?.result;
     if (typeof dataUrl === 'string') {
-      emit('imageLoaded', dataUrl, 'upload');
+      rawUploadDataUrl.value = dataUrl;
+      uploadCropPos.value = { x: 0, y: 0 };
+      uploadCropSize.value = 180;
+      isUploadCropperOpen.value = true;
     }
   };
   reader.readAsDataURL(file);
@@ -270,15 +520,81 @@ const captureStreamFrame = (e?: Event) => {
 
 onBeforeUnmount(() => {
   closeLiveCamera();
+  closeUploadCropper();
 });
 </script>
 
 <style scoped>
 .camera-capture-card {
-  padding: 20px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  transition: all var(--transition-normal);
+}
+
+.camera-capture-card.is-compact {
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+/* 超精簡快捷上傳列 (Compact Source Bar) */
+.compact-source-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.compact-source-box.is-dragging {
+  background: rgba(239, 68, 68, 0.15);
+  border-radius: var(--radius-md);
+}
+
+.compact-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.compact-icon {
+  font-size: 1.1rem;
+}
+
+.compact-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.compact-title {
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.compact-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.compact-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.775rem;
+  border-radius: var(--radius-sm);
+}
+
+.full-capture-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .capture-header {
@@ -307,7 +623,7 @@ onBeforeUnmount(() => {
 }
 
 .capture-header h3 {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
 }
 
@@ -629,5 +945,44 @@ onBeforeUnmount(() => {
 .live-camera-modal .btn-shutter {
   cursor: pointer !important;
   pointer-events: auto !important;
+}
+
+/* 上傳相片取景裁切專用樣式 */
+.upload-crop-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: 52vh;
+  background: #090d16;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.upload-crop-stage:active {
+  cursor: grabbing;
+}
+
+.upload-crop-img {
+  max-width: 100%;
+  max-height: 52vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+
+.upload-draggable-box {
+  max-width: none !important;
+  max-height: none !important;
+  pointer-events: none;
+  cursor: move;
 }
 </style>

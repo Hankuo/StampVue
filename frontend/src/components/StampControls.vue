@@ -1,87 +1,51 @@
 <template>
   <div class="controls-card glass-panel">
+    <!-- 頂部標題與快速重設列 -->
     <div class="controls-header">
       <div class="title-wrap">
-        <span class="step-badge">2</span>
-        <h3>去背與陰影微調</h3>
+        <span class="step-icon">🎛️</span>
+        <h3>去背參數</h3>
       </div>
       <button class="reset-btn" title="重設為預設值" @click="resetDefaults">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
         重設
       </button>
     </div>
 
-    <!-- 影像來源處理管線模式提示 (僅在即時視訊拍攝時顯示，隱藏照片檔案上傳模式UX) -->
-    <div v-if="modelValue.sourceType === 'camera'" class="source-pipeline-banner banner-camera">
-      <div class="banner-badge">
-        <span class="badge-dot"></span>
-        <span>📷 即時視訊拍攝模式</span>
-      </div>
-      <p class="banner-note">
-        保留完整相機視野，不執行第一步偵測裁切原圖
-      </p>
-    </div>
-
-
-    <!-- 參數滑桿區 -->
+    <!-- 核心精簡滑桿區 (高密度緊湊排版) -->
     <div class="sliders-list">
       <!-- 陰影抑制力 -->
-      <div class="slider-container">
-        <div class="slider-header">
-          <span class="label-with-tip" title="過濾手機懸空或燈光造成的局部暗灰陰影">
-            🛡️ 陰影抑制力 (Shadow Suppression)
-          </span>
+      <div class="slider-row">
+        <div class="slider-meta">
+          <span class="label-text" title="強化對暗黑灰影的 Gamma 濾除能力">🛡️ 陰影抑制</span>
           <span class="slider-val">{{ modelValue.shadowSuppression }}%</span>
         </div>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          :value="modelValue.shadowSuppression"
-          @input="onRangeChange('shadowSuppression', $event)"
-        />
+        <div class="slider-input-wrapper">
+          <input
+            type="range"
+            min="0"
+            max="100"
+            :value="modelValue.shadowSuppression"
+            @input="onRangeChange('shadowSuppression', $event)"
+          />
+        </div>
       </div>
 
-      <!-- 去背門檻 -->
-      <div class="slider-container">
-        <div class="slider-header">
-          <span class="label-with-tip" title="色度差判斷門檻，過高會掏空筆劃，過低會殘留底色">
-            ⚖️ 去背靈敏度 (Threshold)
-          </span>
+      <!-- 去背靈敏度 -->
+      <div class="slider-row">
+        <div class="slider-meta">
+          <span class="label-text" title="色度差判斷門檻，越低保留越多細節，過高可能掏空筆劃">⚖️ 去背靈敏度</span>
           <span class="slider-val">{{ modelValue.threshold }}%</span>
         </div>
-        <input
-          type="range"
-          min="10"
-          max="80"
-          :value="modelValue.threshold"
-          @input="onRangeChange('threshold', $event)"
-        />
-      </div>
-    </div>
-
-    <!-- 自動裁切開關 -->
-    <div class="autocrop-row">
-      <label class="checkbox-label">
-        <input
-          type="checkbox"
-          :checked="modelValue.autoCrop"
-          @change="onCheckboxChange('autoCrop', $event)"
-        />
-        <span class="checkbox-custom"></span>
-        <span>智慧自動裁切邊界 (Auto-Crop)</span>
-      </label>
-      <div v-if="modelValue.autoCrop" class="padding-input-wrap">
-        <span>邊距:</span>
-        <input
-          type="number"
-          min="0"
-          max="60"
-          class="padding-num"
-          :value="modelValue.padding"
-          @input="onNumberChange('padding', $event)"
-        />
-        <span>px</span>
+        <div class="slider-input-wrapper">
+          <input
+            type="range"
+            min="10"
+            max="80"
+            :value="modelValue.threshold"
+            @input="onRangeChange('threshold', $event)"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -111,18 +75,6 @@ const onRangeChange = (key: keyof StampOptions, event: Event) => {
   updateOption(key, val as never);
 };
 
-const onNumberChange = (key: keyof StampOptions, event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const val = Math.max(0, Math.min(100, Number(target.value)));
-  updateOption(key, val as never);
-};
-
-const onCheckboxChange = (key: keyof StampOptions, event: Event) => {
-  const target = event.target as HTMLInputElement;
-  updateOption(key, target.checked as never);
-};
-
-
 const resetDefaults = () => {
   const defaultOpts: StampOptions = {
     colorMode: 'auto',
@@ -132,7 +84,8 @@ const resetDefaults = () => {
     colorBoost: 25,
     autoCrop: true,
     padding: 16,
-    rotation: 0
+    rotation: 0,
+    sourceType: props.modelValue.sourceType
   };
   emit('update:modelValue', defaultOpts);
   emit('change', defaultOpts);
@@ -141,10 +94,10 @@ const resetDefaults = () => {
 
 <style scoped>
 .controls-card {
-  padding: 20px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
 .controls-header {
@@ -156,33 +109,25 @@ const resetDefaults = () => {
 .title-wrap {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
 }
 
-.step-badge {
-  background: var(--accent-red);
-  color: white;
-  font-weight: 800;
-  font-size: 0.85rem;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.step-icon {
+  font-size: 1rem;
 }
 
 .controls-header h3 {
-  font-size: 1.15rem;
+  font-size: 0.925rem;
   font-weight: 700;
+  color: var(--text-primary);
 }
 
 .reset-btn {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
-  font-size: 0.775rem;
-  padding: 4px 10px;
+  color: var(--text-secondary);
+  font-size: 0.725rem;
+  padding: 3px 8px;
   border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
@@ -193,188 +138,47 @@ const resetDefaults = () => {
 
 .reset-btn:hover {
   color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-.group-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-  display: block;
-}
-
-
-.presets-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.rotation-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-subtle);
-  padding: 12px;
-  border-radius: var(--radius-md);
-}
-
-.rotation-actions-row {
-  display: flex;
-  gap: 8px;
-}
-
-.rot-btn {
-  flex: 1;
-  font-size: 0.75rem;
-  padding: 6px 8px;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  text-align: center;
-}
-
-.rot-btn:hover {
-  background: var(--bg-glass-hover);
-  color: var(--text-primary);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
+/* 高密度精簡滑桿區 */
 .sliders-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
-.label-with-tip {
-  cursor: help;
+.slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.autocrop-row {
+.slider-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-subtle);
 }
 
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.checkbox-label input {
-  display: none;
-}
-
-.checkbox-custom {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  border: 2px solid var(--border-subtle);
-  background: var(--bg-input);
-  display: inline-block;
-  position: relative;
-  transition: all var(--transition-fast);
-}
-
-.checkbox-label input:checked + .checkbox-custom {
-  background: var(--accent-red);
-  border-color: var(--accent-red);
-}
-
-.checkbox-label input:checked + .checkbox-custom::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.padding-input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.padding-num {
-  width: 48px;
-  background: var(--bg-input);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-align: center;
-  padding: 3px 6px;
-  border-radius: var(--radius-sm);
-  outline: none;
-}
-
-/* 來源處理管線提示條 */
-.source-pipeline-banner {
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  border: 1px solid var(--border-subtle);
-  background: rgba(255, 255, 255, 0.02);
-  transition: all var(--transition-fast);
-}
-
-.banner-camera {
-  border-color: rgba(59, 130, 246, 0.4);
-  background: rgba(59, 130, 246, 0.08);
-}
-
-.banner-upload {
-  border-color: rgba(16, 185, 129, 0.4);
-  background: rgba(16, 185, 129, 0.08);
-}
-
-.banner-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.banner-camera .badge-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #3b82f6;
-  box-shadow: 0 0 6px #3b82f6;
-}
-
-.banner-upload .badge-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 6px #10b981;
-}
-
-.banner-note {
+.label-text {
   font-size: 0.775rem;
-  color: var(--text-muted);
-  line-height: 1.3;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.slider-val {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.slider-input-wrapper {
+  display: flex;
+  align-items: center;
 }
 </style>

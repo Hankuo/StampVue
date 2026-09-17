@@ -263,3 +263,19 @@ export interface StampExtractionResult {
 - **成功回應 (二進位串流)**：
   - 帶入 Query `?format=binary` 或 Header `Accept: image/png`
   - 回傳原始二進位 `image/png`，標頭帶有 `Content-Disposition: inline; filename="stamp_extracted.png"`。
+
+---
+
+## 4. 前端 UX 精簡工作室架構 (Frontend Streamlined Studio Architecture)
+
+### 4.1 視圖拓撲 (Layout Hierarchy)
+- **Top Header**: Brand + Engine status + Compact Image Source actions (`📁 換圖` / `📷 拍照`)。
+- **Hero Canvas (核心畫布)**:
+  - 預覽區為視覺焦點，寬高最大化。
+  - **Top Floating Bar**: View Mode (`[↔️ 對比 | ✨ 去背 | 📷 原圖]`) + Background Picker (`[🏁 ⚪ ⬛ 📜]`)。
+  - **Bottom Floating Bar**: Quick Rotation (`[↺ 90°]` `[0°]` `[↻ 90°]`) + Zoom Controls (`[- 100% + ↺]`)。
+- **Compact Control Deck (緊湊微調甲板)**:
+  - 陰影抑制力 (Shadow Suppression) 與去背靈敏度 (Threshold) 採高密度橫向排版，附帶重設按鈕。
+  - 摺疊式進階抽屜 (Advanced Drawer)：展開提供邊界 Padding、羽化平滑、飽和度等進階微調。
+- **Sticky Bottom Action Bar (吸底下載列)**:
+  - 桌面與行動裝置吸底一鍵無損透明 PNG 下載，操作流暢不需滾動。
