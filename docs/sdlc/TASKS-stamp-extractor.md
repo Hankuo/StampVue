@@ -59,6 +59,7 @@ gantt
 | **T-25** | Core Algorithm & TDD | 藍印去背演算法全面升級：藍黃對立色差 (Blue-Yellow Opponent)、暗部 Gamma 補償、修復綠色通道誤植 (b*0.8 -> g*0.75)、新增真實青藍印泥 TDD 單元測試 | [stampProcessor.ts](file:///d:/AI%20Agent/StampVue/frontend/src/utils/stampProcessor.ts) / [stampExtractor.ts](file:///d:/AI%20Agent/StampVue/backend/src/services/stampExtractor.ts) / [stampExtractor.test.ts](file:///d:/AI%20Agent/StampVue/backend/tests/stampExtractor.test.ts) | ✅ 已完成 |
 | **T-26** | Frontend UX & Cropper | 1. 標題改為「裁切印章」 2. 實作紅框 4 角與 4 邊正方形等比拖曳縮放 3. 按鈕改為「裁切」 4. 按鈕改為「取消」不進行去背 5. 移除引導文字 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 | **T-27** | Framework Migration | 將前端專案降版遷移至 Vue 2 (Vue 2.7.16 + @vitejs/plugin-vue2)，適配 Teleport/v-model，完成編譯、型別檢查與 Dev 伺服器驗證 | [package.json](file:///d:/AI%20Agent/StampVue/frontend/package.json) / [vite.config.ts](file:///d:/AI%20Agent/StampVue/frontend/vite.config.ts) / [main.ts](file:///d:/AI%20Agent/StampVue/frontend/src/main.ts) / [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) / [StampControls.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/StampControls.vue) | ✅ 已完成 |
+| **T-28** | Frontend UX & Cropper | 在上傳相片裁切流程中增加雙維度縮放按鍵：裁切框逐步微調 (±20px) 與照片視角縮放 (50%~300% / 重設)，精確保持幾何映射無損裁切 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 
 
 
