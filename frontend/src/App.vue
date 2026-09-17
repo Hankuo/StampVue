@@ -8,6 +8,7 @@
           <CameraCapture
             :has-image="!!originalImageUrl"
             @image-loaded="handleImageLoaded"
+            @imageLoaded="handleImageLoaded"
           />
         </div>
 

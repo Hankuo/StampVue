@@ -1,5 +1,5 @@
 <template>
-  <div class="camera-capture-card glass-panel" :class="{ 'is-compact': hasImage }">
+  <div class="camera-capture-root">
     <!-- 隱藏原生檔案選擇器 -->
     <input
       ref="fileInputRef"
@@ -9,62 +9,64 @@
       @change="handleFileSelect"
     />
 
-    <!-- 情況 A: 已載入圖片時的超精簡緊湊列 (Compact Studio Bar) -->
-    <div
-      v-if="hasImage"
-      class="compact-source-box"
-      :class="{ 'is-dragging': isDragging }"
-      @dragover.prevent="isDragging = true"
-      @dragleave.prevent="isDragging = false"
-      @drop.prevent="handleDrop"
-    >
-      <div class="compact-info">
-        <span class="compact-icon">📷</span>
-        <div class="compact-text">
-          <span class="compact-title">印章來源</span>
-        </div>
-      </div>
-      <div class="compact-buttons">
-        <button class="btn btn-secondary btn-sm" type="button" @click.stop="triggerUpload">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          選擇相片
-        </button>
-        <button class="btn btn-secondary btn-sm" type="button" @click.stop="openLiveCamera">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-          拍照
-        </button>
-      </div>
-    </div>
-
-    <!-- 情況 B: 尚未載入圖片時的完整引導拖曳區 -->
-    <div v-else class="full-capture-wrap">
-      <div class="capture-header">
-        <div class="title-wrap">
-          <span class="step-badge">1</span>
-          <h3>取得印章影像</h3>
-        </div>
-        <span class="sub-tip">支援照片檔案上傳、拖曳上傳或即時視訊鏡頭拍照</span>
-      </div>
-
+    <div class="camera-capture-card glass-panel" :class="{ 'is-compact': hasImage }">
+      <!-- 情況 A: 已載入圖片時的超精簡緊湊列 (Compact Studio Bar) -->
       <div
-        class="dropzone"
+        v-if="hasImage"
+        class="compact-source-box"
         :class="{ 'is-dragging': isDragging }"
         @dragover.prevent="isDragging = true"
         @dragleave.prevent="isDragging = false"
         @drop.prevent="handleDrop"
       >
-        <div class="dropzone-content">
-          <div class="action-buttons-group">
-            <button class="btn btn-primary" type="button" @click.stop="triggerUpload">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              選擇照片檔案
-            </button>
-            <button class="btn btn-secondary" type="button" @click.stop="openLiveCamera">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-              拍照
-            </button>
+        <div class="compact-info">
+          <span class="compact-icon">📷</span>
+          <div class="compact-text">
+            <span class="compact-title">印章來源</span>
           </div>
-          <p class="dropzone-hint">或將紙張印章相片直接拖曳至此處上傳</p>
+        </div>
+        <div class="compact-buttons">
+          <button class="btn btn-secondary btn-sm" type="button" @click.stop="triggerUpload">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            選擇相片
+          </button>
+          <button class="btn btn-secondary btn-sm" type="button" @click.stop="openLiveCamera">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            拍照
+          </button>
+        </div>
+      </div>
+
+      <!-- 情況 B: 尚未載入圖片時的完整引導拖曳區 -->
+      <div v-else class="full-capture-wrap">
+        <div class="capture-header">
+          <div class="title-wrap">
+            <span class="step-badge">1</span>
+            <h3>取得印章影像</h3>
+          </div>
+          <span class="sub-tip">支援照片檔案上傳、拖曳上傳或即時視訊鏡頭拍照</span>
+        </div>
+
+        <div
+          class="dropzone"
+          :class="{ 'is-dragging': isDragging }"
+          @dragover.prevent="isDragging = true"
+          @dragleave.prevent="isDragging = false"
+          @drop.prevent="handleDrop"
+        >
+          <div class="dropzone-content">
+            <div class="action-buttons-group">
+              <button class="btn btn-primary" type="button" @click.stop="triggerUpload">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                選擇照片檔案
+              </button>
+              <button class="btn btn-secondary" type="button" @click.stop="openLiveCamera">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                拍照
+              </button>
+            </div>
+            <p class="dropzone-hint">或將紙張印章相片直接拖曳至此處上傳</p>
+          </div>
         </div>
       </div>
     </div>
@@ -251,7 +253,13 @@ withDefaults(
 
 const emit = defineEmits<{
   (e: 'imageLoaded', dataUrl: string, source: 'camera' | 'upload'): void;
+  (e: 'image-loaded', dataUrl: string, source: 'camera' | 'upload'): void;
 }>();
+
+const emitImageLoaded = (dataUrl: string, source: 'camera' | 'upload') => {
+  emit('imageLoaded', dataUrl, source);
+  emit('image-loaded', dataUrl, source);
+};
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const videoRef = ref<HTMLVideoElement | null>(null);
@@ -471,7 +479,7 @@ const confirmUploadCrop = () => {
     );
     const croppedDataUrl = canvas.toDataURL('image/png');
     closeUploadCropper();
-    emit('imageLoaded', croppedDataUrl, 'upload');
+    emitImageLoaded(croppedDataUrl, 'upload');
   } else {
     closeUploadCropper();
   }
@@ -603,7 +611,7 @@ const captureStreamFrame = (e?: Event) => {
           canvas.height
         );
         const dataUrl = canvas.toDataURL('image/jpeg', 0.98);
-        emit('imageLoaded', dataUrl, 'camera');
+        emitImageLoaded(dataUrl, 'camera');
       }
       closeLiveCamera();
       return;
@@ -618,7 +626,7 @@ const captureStreamFrame = (e?: Event) => {
   if (ctx) {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-    emit('imageLoaded', dataUrl, 'camera');
+    emitImageLoaded(dataUrl, 'camera');
   }
   closeLiveCamera();
 };
@@ -630,6 +638,10 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.camera-capture-root {
+  width: 100%;
+}
+
 .camera-capture-card {
   padding: 16px;
   display: flex;
