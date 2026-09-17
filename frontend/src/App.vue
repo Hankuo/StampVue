@@ -66,11 +66,11 @@ let userManuallySelectedColor = false;
 // 依據印章墨色自動切換最佳預設去背參數
 const applyDefaultOptionsForColor = (color: 'red' | 'blue') => {
   if (color === 'blue') {
-    // 藍印高保真細節配置：陰影抑制 35%、去背靈敏度 30%（保護細緻筆劃與淡藍墨水）
+    // 藍印最佳實踐配置：陰影抑制 35%、去背強度 20%（兼顧淡藍印泥保留與冷光白紙徹底去背）
     stampOptions.value.shadowSuppression = 35;
-    stampOptions.value.threshold = 30;
+    stampOptions.value.threshold = 20;
   } else {
-    // 紅印標準配置：陰影抑制 40%、去背靈敏度 40%
+    // 紅印標準配置：陰影抑制 40%、去背強度 40%
     stampOptions.value.shadowSuppression = 40;
     stampOptions.value.threshold = 40;
   }

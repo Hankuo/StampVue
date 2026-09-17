@@ -17,7 +17,7 @@
       <!-- 陰影抑制力 -->
       <div class="slider-row">
         <div class="slider-meta">
-          <span class="label-text" title="強化對暗黑灰影的 Gamma 濾除能力">🛡️ 陰影抑制</span>
+          <span class="label-text" title="強化對紙面暗部與冷色陰影的濾除能力 (建議 30~50%，設為 0% 關閉抑制)">🛡️ 陰影抑制</span>
           <span class="slider-val">{{ currentVal.shadowSuppression }}%</span>
         </div>
         <div class="slider-input-wrapper">
@@ -31,16 +31,16 @@
         </div>
       </div>
 
-      <!-- 去背靈敏度 -->
+      <!-- 去背強度 (靈敏度) -->
       <div class="slider-row">
         <div class="slider-meta">
-          <span class="label-text" title="色度差判斷門檻，越低保留越多細節，過高可能掏空筆劃">⚖️ 去背靈敏度</span>
+          <span class="label-text" title="去背判斷強度：數值越高去背越強，可消除頑固背景；數值越低保留越多淡印細節">⚖️ 去背強度 (靈敏度)</span>
           <span class="slider-val">{{ currentVal.threshold }}%</span>
         </div>
         <div class="slider-input-wrapper">
           <input
             type="range"
-            min="10"
+            min="0"
             max="80"
             :value="currentVal.threshold"
             @input="onRangeChange('threshold', $event)"
@@ -103,7 +103,7 @@ const resetDefaults = () => {
   const isBlue = currentVal.value.colorMode === 'blue';
   const defaultOpts: StampOptions = {
     colorMode: currentVal.value.colorMode,
-    threshold: isBlue ? 30 : 40,
+    threshold: isBlue ? 20 : 40,
     shadowSuppression: isBlue ? 35 : 40,
     smoothness: 0,
     colorBoost: 25,

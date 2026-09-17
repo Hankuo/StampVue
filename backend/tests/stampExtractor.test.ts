@@ -96,6 +96,64 @@ describe('StampExtractorService (TDD Unit Tests)', () => {
     expect(result.width).toBeLessThan(200); // autoCrop 成功縮減多餘透明白邊
   });
 
+  it('應在含螢光增白劑之冷光白紙與陰影下成功擷取藍色印章，且背景徹底完全透明', async () => {
+    const width = 200;
+    const height = 200;
+    const channels = 4;
+    const data = Buffer.alloc(width * height * channels);
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = (y * width + x) * channels;
+        // 模擬冷光白紙 (左上亮處 R:230, G:236, B:248；右下陰影處 R:140, G:150, B:172)
+        const factor = (x + y) / (width + height); // 0 (亮) -> 1 (暗)
+        let r = Math.round(230 - factor * 90);
+        let g = Math.round(236 - factor * 86);
+        let b = Math.round(248 - factor * 76); // B 明顯高於 R, G，模擬螢光增白劑與冷光源
+
+        // 中央繪製真實藍色印章 (鮮藍原子印: R:35, G:75, B:220)
+        const dist = Math.sqrt((x - 100) ** 2 + (y - 100) ** 2);
+        if (dist < 35 && dist > 5) {
+          r = 35;
+          g = 75;
+          b = 220;
+        }
+
+        data[idx] = r;
+        data[idx + 1] = g;
+        data[idx + 2] = b;
+        data[idx + 3] = 255;
+      }
+    }
+
+    const testImgBuffer = await sharp(data, { raw: { width, height, channels } }).png().toBuffer();
+
+    // 測試使用者極限設定：陰影抑制與去背靈敏度都設定為 0 (或最小門檻)，白紙背景依然應 100% 透明
+    const result = await stampExtractorService.extractStamp(testImgBuffer, {
+      colorMode: 'blue',
+      threshold: 10,
+      shadowSuppression: 0,
+      autoCrop: false
+    });
+
+    const { data: outRaw } = await sharp(result.imageBuffer)
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    // 1. 印章圓心內部鏤空白紙 (x: 100, y: 100) 必須完全透明 (Alpha = 0)
+    const centerPaperAlpha = outRaw[(100 * 200 + 100) * 4 + 3];
+    expect(centerPaperAlpha).toBe(0);
+
+    // 2. 印章外圍相鄰白紙 (x: 100, y: 145, 半徑外 dist=45) 必須完全透明 (Alpha = 0)
+    const adjacentPaperAlpha = outRaw[(145 * 200 + 100) * 4 + 3];
+    expect(adjacentPaperAlpha).toBe(0);
+
+    // 3. 中央藍色印章筆劃主體 (x: 100, y: 80) 必須清晰保留 (Alpha > 200)
+    const stampAlpha = outRaw[(80 * 200 + 100) * 4 + 3];
+    expect(stampAlpha).toBeGreaterThan(200);
+  });
+
   it('當圖片尺寸無效或損毀時應妥善拋出錯誤', async () => {
     const invalidBuffer = Buffer.from('invalid-image-binary');
     await expect(stampExtractorService.extractStamp(invalidBuffer)).rejects.toThrow();

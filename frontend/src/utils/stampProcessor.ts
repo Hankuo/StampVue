@@ -74,15 +74,25 @@ export class StampProcessor {
         }
 
         let diff = 0;
+        let bluePurity = 0;
+        let redAbsorption = 0;
+
         if (resolvedColor === 'red') {
           const maxNonTarget = Math.max(g, b);
           diff = r - maxNonTarget;
         } else {
-          const nonTargetAvg = (r + g) * 0.5;
           const nonTargetMax = Math.max(r, g);
-          const blueOpponent = b - (nonTargetAvg * 0.75 + nonTargetMax * 0.25);
-          if (b > nonTargetAvg && (b > r || b > g)) {
-            diff = Math.max(0, blueOpponent);
+          const rawDiff = b - nonTargetMax;
+          // 白紙與冷光源藍光底噪：基礎 14 階 + 亮度比例 16%
+          const paperFloor = Math.max(14, b * 0.16);
+
+          if (rawDiff > paperFloor && b > r) {
+            bluePurity = rawDiff / Math.max(1, b);
+            redAbsorption = (b - r) / Math.max(1, b);
+            // 藍印色度純度門檻：純度至少 20%，紅光吸收至少 22%
+            if (bluePurity >= 0.20 && redAbsorption >= 0.22) {
+              diff = rawDiff - paperFloor;
+            }
           }
         }
 
@@ -92,9 +102,9 @@ export class StampProcessor {
         }
 
         const maxRGB = Math.max(r, g, b);
-        const effectiveLuma = resolvedColor === 'blue' ? Math.min(255, maxRGB * 1.35) : maxRGB;
-        const luminanceFactor = Math.pow(Math.max(1, effectiveLuma) / 255.0, pass1ShadowGamma - 1.0);
-        const score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
+        const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, pass1ShadowGamma - 1.0);
+        const purityBoost = resolvedColor === 'blue' ? 1.0 + (bluePurity + redAbsorption) * 2.0 : 1.0;
+        const score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor * purityBoost;
 
         if (score <= pass1LowBound) {
           pass1RawData[idx + 3] = 0;
@@ -173,15 +183,25 @@ export class StampProcessor {
       }
 
       let diff = 0;
+      let bluePurity = 0;
+      let redAbsorption = 0;
+
       if (resolvedColor === 'red') {
         const maxNonTarget = Math.max(g, b);
         diff = r - maxNonTarget;
       } else {
-        const nonTargetAvg = (r + g) * 0.5;
         const nonTargetMax = Math.max(r, g);
-        const blueOpponent = b - (nonTargetAvg * 0.75 + nonTargetMax * 0.25);
-        if (b > nonTargetAvg && (b > r || b > g)) {
-          diff = Math.max(0, blueOpponent);
+        const rawDiff = b - nonTargetMax;
+        // 白紙螢光增白劑與冷光源的自然藍光底噪
+        const paperFloor = Math.max(14, b * 0.16);
+
+        if (rawDiff > paperFloor && b > r) {
+          bluePurity = rawDiff / Math.max(1, b);
+          redAbsorption = (b - r) / Math.max(1, b);
+          // 純度門檻：純度至少 20%，紅光吸收至少 22%
+          if (bluePurity >= 0.20 && redAbsorption >= 0.22) {
+            diff = rawDiff - paperFloor;
+          }
         }
       }
 
@@ -191,9 +211,9 @@ export class StampProcessor {
       }
 
       const maxRGB = Math.max(r, g, b);
-      const effectiveLuma = resolvedColor === 'blue' ? Math.min(255, maxRGB * 1.35) : maxRGB;
-      const luminanceFactor = Math.pow(Math.max(1, effectiveLuma) / 255.0, shadowGamma - 1.0);
-      const score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
+      const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, shadowGamma - 1.0);
+      const purityBoost = resolvedColor === 'blue' ? 1.0 + (bluePurity + redAbsorption) * 2.0 : 1.0;
+      const score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor * purityBoost;
 
       let alpha = 0;
       if (score <= lowBound) {
@@ -533,11 +553,12 @@ export class StampProcessor {
       const rDiff = r - Math.max(g, b);
       if (rDiff > 20) redScore += rDiff;
 
-      const nonTargetAvg = (r + g) * 0.5;
       const nonTargetMax = Math.max(r, g);
-      const bOpponent = b - (nonTargetAvg * 0.75 + nonTargetMax * 0.25);
-      if (b > nonTargetAvg && bOpponent > 15) {
-        blueScore += bOpponent;
+      const bDiff = b - nonTargetMax;
+      const bPurity = bDiff / Math.max(1, b);
+      // 藍印墨水具有高純度與紅光吸收，避免冷光白紙干擾色彩偵測
+      if (bDiff > 25 && bPurity > 0.20 && (b - r) > 30) {
+        blueScore += bDiff;
       }
     }
 
