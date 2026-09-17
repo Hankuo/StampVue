@@ -100,10 +100,11 @@ const onRangeChange = (key: keyof StampOptions, event: Event) => {
 };
 
 const resetDefaults = () => {
+  const isBlue = currentVal.value.colorMode === 'blue';
   const defaultOpts: StampOptions = {
-    colorMode: 'auto',
-    threshold: 40,
-    shadowSuppression: 40,
+    colorMode: currentVal.value.colorMode,
+    threshold: isBlue ? 30 : 40,
+    shadowSuppression: isBlue ? 35 : 40,
     smoothness: 0,
     colorBoost: 25,
     autoCrop: true,

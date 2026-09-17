@@ -63,6 +63,19 @@ let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let currentImgElement: HTMLImageElement | null = null;
 let userManuallySelectedColor = false;
 
+// 依據印章墨色自動切換最佳預設去背參數
+const applyDefaultOptionsForColor = (color: 'red' | 'blue') => {
+  if (color === 'blue') {
+    // 藍印高保真細節配置：陰影抑制 35%、去背靈敏度 30%（保護細緻筆劃與淡藍墨水）
+    stampOptions.value.shadowSuppression = 35;
+    stampOptions.value.threshold = 30;
+  } else {
+    // 紅印標準配置：陰影抑制 40%、去背靈敏度 40%
+    stampOptions.value.shadowSuppression = 40;
+    stampOptions.value.threshold = 40;
+  }
+};
+
 const handleImageLoaded = (dataUrl: string, source: 'camera' | 'upload' = 'upload') => {
   stampOptions.value.sourceType = source;
   originalImageUrl.value = dataUrl;
@@ -71,9 +84,10 @@ const handleImageLoaded = (dataUrl: string, source: 'camera' | 'upload' = 'uploa
   img.crossOrigin = 'anonymous';
   img.onload = () => {
     currentImgElement = img;
-    // 自動印章色彩偵測：若偵測為藍印，立即改為「藍印」
+    // 自動印章色彩偵測：若偵測為藍印，立即改為「藍印」並套用藍印預設參數
     const detected = StampProcessor.detectImageColor(img);
     stampOptions.value.colorMode = detected;
+    applyDefaultOptionsForColor(detected);
     runProcessing();
   };
   img.src = dataUrl;
@@ -94,6 +108,7 @@ const handleRotationChange = (angle: number) => {
 const handleColorModeChange = (mode: 'red' | 'blue') => {
   userManuallySelectedColor = true;
   stampOptions.value.colorMode = mode;
+  applyDefaultOptionsForColor(mode);
   triggerProcessing();
 };
 
@@ -102,9 +117,10 @@ const runProcessing = async () => {
   try {
     const res = await StampProcessor.processImage(currentImgElement, stampOptions.value);
     processedResult.value = res;
-    // 若影像處理偵測出為藍印，且目前仍為紅印且未手動指定，立即改為「藍印」並以藍印模式重繪
+    // 若影像處理偵測出為藍印，且目前仍為紅印且未手動指定，立即改為「藍印」並以藍印預設參數重繪
     if (res.detectedColor === 'blue' && stampOptions.value.colorMode !== 'blue' && !userManuallySelectedColor) {
       stampOptions.value.colorMode = 'blue';
+      applyDefaultOptionsForColor('blue');
       const blueRes = await StampProcessor.processImage(currentImgElement, stampOptions.value);
       processedResult.value = blueRes;
     }
