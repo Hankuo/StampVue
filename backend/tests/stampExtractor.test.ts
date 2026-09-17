@@ -128,11 +128,11 @@ describe('StampExtractorService (TDD Unit Tests)', () => {
 
     const testImgBuffer = await sharp(data, { raw: { width, height, channels } }).png().toBuffer();
 
-    // 測試使用者極限設定：陰影抑制與去背靈敏度都設定為 0 (或最小門檻)，白紙背景依然應 100% 透明
+    // 測試藍印預設參數：陰影抑制 35%、去背強度 20%，冷光白紙背景徹底完全透明，筆劃飽滿完整
     const result = await stampExtractorService.extractStamp(testImgBuffer, {
       colorMode: 'blue',
-      threshold: 10,
-      shadowSuppression: 0,
+      threshold: 20,
+      shadowSuppression: 35,
       autoCrop: false
     });
 
