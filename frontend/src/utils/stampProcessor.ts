@@ -74,37 +74,41 @@ export class StampProcessor {
         }
 
         let diff = 0;
-        let bluePurity = 0;
-        let redAbsorption = 0;
+        let score = 0;
 
         if (resolvedColor === 'red') {
           const maxNonTarget = Math.max(g, b);
           diff = r - maxNonTarget;
+          if (diff <= 0) {
+            pass1RawData[idx + 3] = 0;
+            continue;
+          }
+          const maxRGB = Math.max(r, g, b);
+          const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, pass1ShadowGamma - 1.0);
+          score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
         } else {
           const nonTargetMax = Math.max(r, g);
-          const rawDiff = b - nonTargetMax;
-          // 白紙與冷光源藍光底噪：基礎 14 階 + 亮度比例 16%
-          const paperFloor = Math.max(14, b * 0.16);
-
-          if (rawDiff > paperFloor && b > r) {
-            bluePurity = rawDiff / Math.max(1, b);
-            redAbsorption = (b - r) / Math.max(1, b);
-            // 藍印色度純度門檻：純度至少 20%，紅光吸收至少 22%
-            if (bluePurity >= 0.20 && redAbsorption >= 0.22) {
-              diff = rawDiff - paperFloor;
-            }
+          if (b <= nonTargetMax || b <= r) {
+            pass1RawData[idx + 3] = 0;
+            continue;
           }
+          const rawDiff = b - nonTargetMax;
+          const maxRGB = Math.max(r, g, b);
+          const bluePurity = rawDiff / Math.max(1, b);
+          const redAbsorption = (b - r) / Math.max(1, b);
+          // 動態底噪：基礎 8 階，高光區 (b > 140) 隨亮度遞增過濾冷光白紙
+          const paperFloor = Math.max(8, b > 140 ? (b - 140) * 0.20 : 0);
+          if (rawDiff <= paperFloor) {
+            pass1RawData[idx + 3] = 0;
+            continue;
+          }
+          diff = rawDiff - paperFloor;
+          // 海軍深藍墨水亮度保護
+          const effectiveLuma = Math.min(255, maxRGB + bluePurity * 160);
+          const luminanceFactor = Math.pow(Math.max(1, effectiveLuma) / 255.0, pass1ShadowGamma - 1.0);
+          const purityWeight = Math.min(3.0, Math.pow((bluePurity + redAbsorption) / 0.32, 1.8));
+          score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor * purityWeight;
         }
-
-        if (diff <= 0) {
-          pass1RawData[idx + 3] = 0;
-          continue;
-        }
-
-        const maxRGB = Math.max(r, g, b);
-        const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, pass1ShadowGamma - 1.0);
-        const purityBoost = resolvedColor === 'blue' ? 1.0 + (bluePurity + redAbsorption) * 2.0 : 1.0;
-        const score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor * purityBoost;
 
         if (score <= pass1LowBound) {
           pass1RawData[idx + 3] = 0;
@@ -183,37 +187,41 @@ export class StampProcessor {
       }
 
       let diff = 0;
-      let bluePurity = 0;
-      let redAbsorption = 0;
+      let score = 0;
 
       if (resolvedColor === 'red') {
         const maxNonTarget = Math.max(g, b);
         diff = r - maxNonTarget;
+        if (diff <= 0) {
+          cropRawData[idx + 3] = 0;
+          continue;
+        }
+        const maxRGB = Math.max(r, g, b);
+        const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, shadowGamma - 1.0);
+        score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
       } else {
         const nonTargetMax = Math.max(r, g);
-        const rawDiff = b - nonTargetMax;
-        // 白紙螢光增白劑與冷光源的自然藍光底噪
-        const paperFloor = Math.max(14, b * 0.16);
-
-        if (rawDiff > paperFloor && b > r) {
-          bluePurity = rawDiff / Math.max(1, b);
-          redAbsorption = (b - r) / Math.max(1, b);
-          // 純度門檻：純度至少 20%，紅光吸收至少 22%
-          if (bluePurity >= 0.20 && redAbsorption >= 0.22) {
-            diff = rawDiff - paperFloor;
-          }
+        if (b <= nonTargetMax || b <= r) {
+          cropRawData[idx + 3] = 0;
+          continue;
         }
+        const rawDiff = b - nonTargetMax;
+        const maxRGB = Math.max(r, g, b);
+        const bluePurity = rawDiff / Math.max(1, b);
+        const redAbsorption = (b - r) / Math.max(1, b);
+        // 動態底噪：基礎 8 階，高光區 (b > 140) 隨亮度遞增過濾冷光白紙
+        const paperFloor = Math.max(8, b > 140 ? (b - 140) * 0.20 : 0);
+        if (rawDiff <= paperFloor) {
+          cropRawData[idx + 3] = 0;
+          continue;
+        }
+        diff = rawDiff - paperFloor;
+        // 海軍深藍墨水亮度保護
+        const effectiveLuma = Math.min(255, maxRGB + bluePurity * 160);
+        const luminanceFactor = Math.pow(Math.max(1, effectiveLuma) / 255.0, shadowGamma - 1.0);
+        const purityWeight = Math.min(3.0, Math.pow((bluePurity + redAbsorption) / 0.32, 1.8));
+        score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor * purityWeight;
       }
-
-      if (diff <= 0) {
-        cropRawData[idx + 3] = 0;
-        continue;
-      }
-
-      const maxRGB = Math.max(r, g, b);
-      const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, shadowGamma - 1.0);
-      const purityBoost = resolvedColor === 'blue' ? 1.0 + (bluePurity + redAbsorption) * 2.0 : 1.0;
-      const score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor * purityBoost;
 
       let alpha = 0;
       if (score <= lowBound) {
@@ -233,7 +241,7 @@ export class StampProcessor {
           cropRawData[idx + 2] = Math.max(0, Math.round(b * 0.7));
         } else {
           cropRawData[idx] = Math.max(0, Math.round(r * 0.65));
-          cropRawData[idx + 1] = Math.max(0, Math.round(g * 0.75));
+          cropRawData[idx + 1] = Math.max(0, Math.round(g * 0.72));
           cropRawData[idx + 2] = Math.min(255, Math.round(b * boostFactor));
         }
         cropRawData[idx + 3] = alpha;
