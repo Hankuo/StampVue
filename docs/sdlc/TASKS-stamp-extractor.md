@@ -62,7 +62,5 @@ gantt
 | **T-28** | Frontend UX & Cropper | 在上傳相片裁切流程中增加雙維度縮放按鍵：裁切框逐步微調 (±20px) 與照片視角縮放 (50%~300% / 重設)，精確保持幾何映射無損裁切 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 | **T-29** | Core UX & Parameters | 當偵測或切換為藍印時，自動套用專屬預設去背參數（高保真配置：陰影抑制 35%、靈敏度 30%）；紅印維持標準配置 (40%/40%)，重設按鈕同步支援色系預設值 | [App.vue](file:///d:/AI%20Agent/StampVue/frontend/src/App.vue) / [StampControls.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/StampControls.vue) | ✅ 已完成 |
 | **T-30** | Core Algorithm & TDD | 藍色印章去背深度優化：引入動態噪聲底限 (Dynamic Noise Floor) 與紅光吸收純度檢驗，徹底解決冷光白紙與陰影殘留；修正陰影抑制因子；控制面板支援 0%~80% 且極限參數下白紙 100% 完全透明；新增冷光偏藍白紙與陰影 TDD 單元測試 | [stampProcessor.ts](file:///d:/AI%20Agent/StampVue/frontend/src/utils/stampProcessor.ts) / [stampExtractor.ts](file:///d:/AI%20Agent/StampVue/backend/src/services/stampExtractor.ts) / [StampControls.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/StampControls.vue) / [stampExtractor.test.ts](file:///d:/AI%20Agent/StampVue/backend/tests/stampExtractor.test.ts) | ✅ 已完成 |
-
-
-
+| **T-31** | Frontend UX | 預覽區域精簡：固定保留透明棋盤底色 (Checkerboard) 與純去背成果 (Extracted)，移除預覽頂部底色與檢視切換按鍵 | [ImagePreview.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/ImagePreview.vue) | ✅ 已完成 |
 
