@@ -322,11 +322,12 @@ onBeforeUnmount(() => {
   background: var(--bg-glass-hover);
 }
 
-/* 畫布核心區 (高度壓縮以確保一頁全顯) */
+/* 畫布核心區 (加大高度以提供清晰大圖預覽) */
 .canvas-viewport {
   position: relative;
   width: 100%;
-  height: 270px;
+  height: 520px;
+  min-height: 480px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
   overflow: hidden;
@@ -360,7 +361,7 @@ onBeforeUnmount(() => {
 
 .stage-img {
   max-width: 100%;
-  max-height: 240px;
+  max-height: 480px;
   object-fit: contain;
 }
 
@@ -372,7 +373,7 @@ onBeforeUnmount(() => {
 .split-container {
   position: relative;
   display: inline-block;
-  max-height: 240px;
+  max-height: 480px;
   overflow: hidden;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-md);
@@ -395,7 +396,7 @@ onBeforeUnmount(() => {
 
 .split-layer {
   display: block;
-  max-height: 240px;
+  max-height: 480px;
   max-width: 100%;
   object-fit: contain;
 }
@@ -539,15 +540,29 @@ onBeforeUnmount(() => {
 }
 
 /* Responsive Media Queries */
-@media (max-width: 640px) {
+@media (max-width: 1024px) {
   .canvas-viewport {
-    height: 220px;
+    height: 400px;
+    min-height: 360px;
   }
 
   .stage-img,
   .split-container,
   .split-layer {
-    max-height: 200px;
+    max-height: 370px;
+  }
+}
+
+@media (max-width: 640px) {
+  .canvas-viewport {
+    height: 320px;
+    min-height: 280px;
+  }
+
+  .stage-img,
+  .split-container,
+  .split-layer {
+    max-height: 290px;
   }
 
   .preview-bottom-toolbar {

@@ -50,13 +50,13 @@ export class StampExtractorService {
     let pass1BoundingBox: BoundingBox | undefined = undefined;
     const totalPixels = width * height;
     const outputData = Buffer.from(rawData);
-    const shadowGamma = 1.0 + (shadowSuppression / 100) * 1.5;
+    const shadowGamma = 1.0 + (shadowSuppression / 100) * 1.8;
     const boostFactor = 1.0 + (colorBoost / 100) * 0.8;
 
     if (!isCamera) {
-      const pass1ShadowSuppression = 40;
+      const pass1ShadowSuppression = shadowSuppression;
       const pass1Threshold = resolvedColorMode === 'red' ? 70 : 45;
-      const pass1ShadowGamma = 1.0 + (pass1ShadowSuppression / 100) * 1.5;
+      const pass1ShadowGamma = 1.0 + (pass1ShadowSuppression / 100) * 1.8;
       const pass1TVal = (pass1Threshold / 100) * 120 + 10;
       const pass1SmoothRange = Math.max(1, (smoothness / 100) * 40);
       const pass1LowBound = resolvedColorMode === 'blue' ? 7 : Math.max(0, pass1TVal - pass1SmoothRange);
@@ -86,8 +86,16 @@ export class StampExtractorService {
             continue;
           }
           const maxRGB = Math.max(r, g, b);
+          const shadowDepth = Math.max(0, (220 - maxRGB) / 220.0);
+          const shadowChromaFloor = shadowDepth * (pass1ShadowSuppression / 100) * 0.28;
+          const chroma = diff / Math.max(1, maxRGB);
+          if (chroma <= shadowChromaFloor) {
+            pass1RawData[idx + 3] = 0;
+            continue;
+          }
+          const effectiveDiff = diff - shadowChromaFloor * maxRGB;
           const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, pass1ShadowGamma - 1.0);
-          score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
+          score = (effectiveDiff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
         } else {
           const nonTargetMax = Math.max(r, g);
           const nonTargetAvg = (r + g) * 0.5;
@@ -109,12 +117,20 @@ export class StampExtractorService {
           const maxRGB = Math.max(r, g, b);
           const blueChroma = diff / Math.max(1, b);
 
+          const shadowDepth = Math.max(0, (220 - maxRGB) / 220.0);
+          const shadowChromaFloor = shadowDepth * (pass1ShadowSuppression / 100) * 0.18;
+          if (blueChroma <= shadowChromaFloor) {
+            pass1RawData[idx + 3] = 0;
+            continue;
+          }
+          const effectiveDiff = diff - shadowChromaFloor * b;
+
           // 海軍深藍墨水亮度保護
-          const effectiveLuma = Math.min(255, maxRGB + blueChroma * 180);
+          const effectiveLuma = Math.min(255, maxRGB + blueChroma * 50);
           const luminanceFactor = Math.pow(Math.max(1, effectiveLuma) / 255.0, pass1ShadowGamma - 1.0);
 
           const chromaWeight = Math.min(1.0, Math.pow(blueChroma / 0.12, 2.5));
-          const normalizedDiff = diff / (maxRGB + 10.0);
+          const normalizedDiff = effectiveDiff / (maxRGB + 10.0);
           score = normalizedDiff * 380.0 * (1.0 + blueChroma * 0.8) * luminanceFactor * chromaWeight;
         }
 
@@ -182,8 +198,16 @@ export class StampExtractorService {
             continue;
           }
           const maxRGB = Math.max(r, g, b);
+          const shadowDepth = Math.max(0, (220 - maxRGB) / 220.0);
+          const shadowChromaFloor = shadowDepth * (shadowSuppression / 100) * 0.28;
+          const chroma = diff / Math.max(1, maxRGB);
+          if (chroma <= shadowChromaFloor) {
+            outputData[idx + 3] = 0;
+            continue;
+          }
+          const effectiveDiff = diff - shadowChromaFloor * maxRGB;
           const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, shadowGamma - 1.0);
-          score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
+          score = (effectiveDiff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
         } else {
           const nonTargetMax = Math.max(r, g);
           const nonTargetAvg = (r + g) * 0.5;
@@ -205,12 +229,20 @@ export class StampExtractorService {
           const maxRGB = Math.max(r, g, b);
           blueChroma = diff / Math.max(1, b);
 
+          const shadowDepth = Math.max(0, (220 - maxRGB) / 220.0);
+          const shadowChromaFloor = shadowDepth * (shadowSuppression / 100) * 0.18;
+          if (blueChroma <= shadowChromaFloor) {
+            outputData[idx + 3] = 0;
+            continue;
+          }
+          const effectiveDiff = diff - shadowChromaFloor * b;
+
           // 海軍深藍墨水亮度保護
-          const effectiveLuma = Math.min(255, maxRGB + blueChroma * 180);
+          const effectiveLuma = Math.min(255, maxRGB + blueChroma * 50);
           const luminanceFactor = Math.pow(Math.max(1, effectiveLuma) / 255.0, shadowGamma - 1.0);
 
           const chromaWeight = Math.min(1.0, Math.pow(blueChroma / 0.12, 2.5));
-          const normalizedDiff = diff / (maxRGB + 10.0);
+          const normalizedDiff = effectiveDiff / (maxRGB + 10.0);
           score = normalizedDiff * 380.0 * (1.0 + blueChroma * 0.8) * luminanceFactor * chromaWeight;
         }
 

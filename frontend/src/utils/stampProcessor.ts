@@ -52,9 +52,9 @@ export class StampProcessor {
     let pass1BoundingBox: BoundingBox | undefined = undefined;
 
     if (!isCamera) {
-      const pass1ShadowSuppression = 40;
+      const pass1ShadowSuppression = options.shadowSuppression;
       const pass1Threshold = resolvedColor === 'red' ? 70 : 45;
-      const pass1ShadowGamma = 1.0 + (pass1ShadowSuppression / 100) * 1.5;
+      const pass1ShadowGamma = 1.0 + (pass1ShadowSuppression / 100) * 1.8;
       const pass1TVal = (pass1Threshold / 100) * 120 + 10;
       const pass1SmoothRange = Math.max(1, (options.smoothness / 100) * 40);
       const pass1LowBound = resolvedColor === 'blue' ? 7 : Math.max(0, pass1TVal - pass1SmoothRange);
@@ -84,8 +84,16 @@ export class StampProcessor {
             continue;
           }
           const maxRGB = Math.max(r, g, b);
+          const shadowDepth = Math.max(0, (220 - maxRGB) / 220.0);
+          const shadowChromaFloor = shadowDepth * (pass1ShadowSuppression / 100) * 0.28;
+          const chroma = diff / Math.max(1, maxRGB);
+          if (chroma <= shadowChromaFloor) {
+            pass1RawData[idx + 3] = 0;
+            continue;
+          }
+          const effectiveDiff = diff - shadowChromaFloor * maxRGB;
           const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, pass1ShadowGamma - 1.0);
-          score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
+          score = (effectiveDiff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
         } else {
           const nonTargetMax = Math.max(r, g);
           const nonTargetAvg = (r + g) * 0.5;
@@ -107,12 +115,20 @@ export class StampProcessor {
           const maxRGB = Math.max(r, g, b);
           const blueChroma = diff / Math.max(1, b);
 
+          const shadowDepth = Math.max(0, (220 - maxRGB) / 220.0);
+          const shadowChromaFloor = shadowDepth * (pass1ShadowSuppression / 100) * 0.18;
+          if (blueChroma <= shadowChromaFloor) {
+            pass1RawData[idx + 3] = 0;
+            continue;
+          }
+          const effectiveDiff = diff - shadowChromaFloor * b;
+
           // 海軍深藍墨水亮度保護
-          const effectiveLuma = Math.min(255, maxRGB + blueChroma * 180);
+          const effectiveLuma = Math.min(255, maxRGB + blueChroma * 50);
           const luminanceFactor = Math.pow(Math.max(1, effectiveLuma) / 255.0, pass1ShadowGamma - 1.0);
 
           const chromaWeight = Math.min(1.0, Math.pow(blueChroma / 0.12, 2.5));
-          const normalizedDiff = diff / (maxRGB + 10.0);
+          const normalizedDiff = effectiveDiff / (maxRGB + 10.0);
           score = normalizedDiff * 380.0 * (1.0 + blueChroma * 0.8) * luminanceFactor * chromaWeight;
         }
 
@@ -172,7 +188,7 @@ export class StampProcessor {
     const cropRawData = cropImgData.data;
     const cropTotalPixels = boundingBox.width * boundingBox.height;
 
-    const shadowGamma = 1.0 + (options.shadowSuppression / 100) * 1.5;
+    const shadowGamma = 1.0 + (options.shadowSuppression / 100) * 1.8;
     const boostFactor = 1.0 + (options.colorBoost / 100) * 0.8;
     const pass2Threshold = options.threshold;
     const tVal = resolvedColor === 'blue' ? 3 + (pass2Threshold / 100) * 35 : (pass2Threshold / 100) * 120 + 10;
@@ -204,8 +220,16 @@ export class StampProcessor {
           continue;
         }
         const maxRGB = Math.max(r, g, b);
+        const shadowDepth = Math.max(0, (220 - maxRGB) / 220.0);
+        const shadowChromaFloor = shadowDepth * (options.shadowSuppression / 100) * 0.28;
+        const chroma = diff / Math.max(1, maxRGB);
+        if (chroma <= shadowChromaFloor) {
+          cropRawData[idx + 3] = 0;
+          continue;
+        }
+        const effectiveDiff = diff - shadowChromaFloor * maxRGB;
         const luminanceFactor = Math.pow(Math.max(1, maxRGB) / 255.0, shadowGamma - 1.0);
-        score = (diff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
+        score = (effectiveDiff / (maxRGB + 15.0)) * 255.0 * luminanceFactor;
       } else {
         const nonTargetMax = Math.max(r, g);
         const nonTargetAvg = (r + g) * 0.5;
@@ -227,12 +251,20 @@ export class StampProcessor {
         const maxRGB = Math.max(r, g, b);
         blueChroma = diff / Math.max(1, b);
 
+        const shadowDepth = Math.max(0, (220 - maxRGB) / 220.0);
+        const shadowChromaFloor = shadowDepth * (options.shadowSuppression / 100) * 0.18;
+        if (blueChroma <= shadowChromaFloor) {
+          cropRawData[idx + 3] = 0;
+          continue;
+        }
+        const effectiveDiff = diff - shadowChromaFloor * b;
+
         // 海軍深藍墨水亮度保護
-        const effectiveLuma = Math.min(255, maxRGB + blueChroma * 180);
+        const effectiveLuma = Math.min(255, maxRGB + blueChroma * 50);
         const luminanceFactor = Math.pow(Math.max(1, effectiveLuma) / 255.0, shadowGamma - 1.0);
 
         const chromaWeight = Math.min(1.0, Math.pow(blueChroma / 0.12, 2.5));
-        const normalizedDiff = diff / (maxRGB + 10.0);
+        const normalizedDiff = effectiveDiff / (maxRGB + 10.0);
         score = normalizedDiff * 380.0 * (1.0 + blueChroma * 0.8) * luminanceFactor * chromaWeight;
       }
 
@@ -629,12 +661,12 @@ export class StampProcessor {
       ctx.fillText('甲方與乙方就本專案之交付標準與驗收作業規範達成合意條款...', 40, y);
     }
 
-    // 3. 繪製斜向深灰色手機陰影
+    // 3. 繪製斜向深灰色手機陰影 (帶真實環境漫反射偏暖光，具備動態陰影抑制響應)
     const shadowGrad = ctx.createLinearGradient(0, 0, width, height);
-    shadowGrad.addColorStop(0, 'rgba(30, 41, 59, 0.05)');
-    shadowGrad.addColorStop(0.4, 'rgba(15, 23, 42, 0.25)');
-    shadowGrad.addColorStop(0.7, 'rgba(15, 23, 42, 0.65)'); // 深手機陰影
-    shadowGrad.addColorStop(1.0, 'rgba(15, 23, 42, 0.15)');
+    shadowGrad.addColorStop(0, 'rgba(40, 36, 32, 0.05)');
+    shadowGrad.addColorStop(0.4, 'rgba(32, 28, 24, 0.25)');
+    shadowGrad.addColorStop(0.7, 'rgba(28, 22, 18, 0.65)'); // 深手機陰影
+    shadowGrad.addColorStop(1.0, 'rgba(32, 28, 24, 0.15)');
     ctx.fillStyle = shadowGrad;
     ctx.fillRect(0, 0, width, height);
 

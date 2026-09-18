@@ -315,6 +315,62 @@ describe('StampExtractorService (TDD Unit Tests)', () => {
     const shadowIdx = (180 * 200 + 180) * 4;
     expect(outRaw[shadowIdx + 3]).toBe(0);
   });
+
+  it('陰影抑制參數應具備顯著調節效果：當存在暗部色偏雜訊時，提升 shadowSuppression 能徹底濾除陰影，而低抑制時保留暗處細節', async () => {
+    const width = 100;
+    const height = 100;
+    const channels = 4;
+    const data = Buffer.alloc(width * height * channels);
+
+    // 建立微暖環境反射暗部陰影底紙 (R:140, G:120, B:110，帶有自然色偏)
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = (y * width + x) * channels;
+        // 左半部為帶有色偏之深色紙張陰影，右半部為深部紅印章筆劃
+        if (x < 50) {
+          data[idx] = 140;
+          data[idx + 1] = 120;
+          data[idx + 2] = 110;
+        } else {
+          data[idx] = 135;
+          data[idx + 1] = 30;
+          data[idx + 2] = 30;
+        }
+        data[idx + 3] = 255;
+      }
+    }
+
+    const testImg = await sharp(data, { raw: { width, height, channels } }).png().toBuffer();
+
+    // 測試 A：當 shadowSuppression = 0% 時，陰影抑制未開啟，暗部雜訊在較低門檻下會被保留
+    const resultNoSupp = await stampExtractorService.extractStamp(testImg, {
+      colorMode: 'red',
+      threshold: 15,
+      shadowSuppression: 0,
+      sourceType: 'camera',
+      autoCrop: false
+    });
+    const { data: rawNoSupp } = await sharp(resultNoSupp.imageBuffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const shadowAlphaNoSupp = rawNoSupp[(20 * 100 + 20) * 4 + 3];
+    expect(shadowAlphaNoSupp).toBeGreaterThan(0); // 陰影未被抑制
+
+    // 測試 B：當 shadowSuppression = 50% 時，動態陰影底限啟動，暗部微弱偏色陰影徹底完全濾除為透明 (Alpha = 0)
+    const resultSupp = await stampExtractorService.extractStamp(testImg, {
+      colorMode: 'red',
+      threshold: 15,
+      shadowSuppression: 50,
+      sourceType: 'camera',
+      autoCrop: false
+    });
+    const { data: rawSupp } = await sharp(resultSupp.imageBuffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const shadowAlphaSupp = rawSupp[(20 * 100 + 20) * 4 + 3];
+    expect(shadowAlphaSupp).toBe(0); // 陰影徹底濾除
+
+    // 驗證右側深部印章主體依然完整保留
+    const stampAlphaSupp = rawSupp[(20 * 100 + 75) * 4 + 3];
+    expect(stampAlphaSupp).toBeGreaterThan(200);
+  });
 });
+
 
 
