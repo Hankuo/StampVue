@@ -81,8 +81,9 @@
     <div v-if="originalImageUrl" class="preview-bottom-toolbar">
       <!-- 旋轉控制群組 (可輸入角度) -->
       <div class="rotation-group">
-        <button type="button" class="tool-btn" title="向左旋轉 90 度" @click="rotateBy(-90)">
-          ↺ 90°
+        <button type="button" class="tool-btn rotate-btn" title="向左旋轉 90 度" @click="rotateBy(-90)">
+          <span class="rotate-icon">↺</span>
+          <span>90°</span>
         </button>
         <div class="angle-input-box" title="直接輸入旋轉角度 (0° ~ 360°)">
           <input
@@ -95,8 +96,9 @@
           />
           <span class="deg-sym">°</span>
         </div>
-        <button type="button" class="tool-btn" title="向右旋轉 90 度" @click="rotateBy(90)">
-          ↻ 90°
+        <button type="button" class="tool-btn rotate-btn" title="向右旋轉 90 度" @click="rotateBy(90)">
+          <span class="rotate-icon">↻</span>
+          <span>90°</span>
         </button>
         <button
           v-if="(currentOptions.rotation || 0) !== 0"
@@ -322,12 +324,12 @@ onBeforeUnmount(() => {
   background: var(--bg-glass-hover);
 }
 
-/* 畫布核心區 (加大高度以提供清晰大圖預覽) */
+/* 畫布核心區 (降低高度以優化工作台視野) */
 .canvas-viewport {
   position: relative;
   width: 100%;
-  height: 520px;
-  min-height: 480px;
+  height: 330px;
+  min-height: 280px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
   overflow: hidden;
@@ -361,7 +363,7 @@ onBeforeUnmount(() => {
 
 .stage-img {
   max-width: 100%;
-  max-height: 480px;
+  max-height: 290px;
   object-fit: contain;
 }
 
@@ -373,7 +375,7 @@ onBeforeUnmount(() => {
 .split-container {
   position: relative;
   display: inline-block;
-  max-height: 480px;
+  max-height: 290px;
   overflow: hidden;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-md);
@@ -396,7 +398,7 @@ onBeforeUnmount(() => {
 
 .split-layer {
   display: block;
-  max-height: 480px;
+  max-height: 290px;
   max-width: 100%;
   object-fit: contain;
 }
@@ -448,35 +450,68 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 4px 8px;
-  background: rgba(15, 23, 42, 0.55);
+  padding: 6px 10px;
+  background: rgba(15, 23, 42, 0.65);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
 }
 
 .rotation-group,
 .zoom-group {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
 
-/* 旋轉角度數值輸入框 */
+/* 調大旋轉按鍵 (Rotate Buttons) */
+.rotate-btn {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all var(--transition-fast);
+}
+
+.rotate-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25);
+  transform: translateY(-1px);
+}
+
+.rotate-btn:active {
+  transform: translateY(0);
+}
+
+.rotate-icon {
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* 旋轉角度數值輸入框 - 調大以配合按鍵高度 */
 .angle-input-box {
   display: inline-flex;
   align-items: center;
   background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.35);
   border-radius: var(--radius-sm);
-  padding: 1px 4px;
+  padding: 3px 8px;
+  height: 32px;
 }
 
 .angle-num-input {
-  width: 36px;
+  width: 40px;
   background: transparent;
   border: none;
   color: #f87171;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 700;
   text-align: right;
   outline: none;
@@ -490,10 +525,16 @@ onBeforeUnmount(() => {
 }
 
 .deg-sym {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #f87171;
-  margin-left: 1px;
+  margin-left: 2px;
+}
+
+.reset-angle-btn {
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  height: 32px;
 }
 
 .tool-btn {
@@ -542,31 +583,51 @@ onBeforeUnmount(() => {
 /* Responsive Media Queries */
 @media (max-width: 1024px) {
   .canvas-viewport {
-    height: 400px;
-    min-height: 360px;
+    height: 280px;
+    min-height: 240px;
   }
 
   .stage-img,
   .split-container,
   .split-layer {
-    max-height: 370px;
+    max-height: 250px;
   }
 }
 
 @media (max-width: 640px) {
   .canvas-viewport {
-    height: 320px;
-    min-height: 280px;
+    height: 230px;
+    min-height: 190px;
   }
 
   .stage-img,
   .split-container,
   .split-layer {
-    max-height: 290px;
+    max-height: 200px;
   }
 
   .preview-bottom-toolbar {
-    padding: 4px 6px;
+    padding: 5px 8px;
+  }
+
+  .rotate-btn {
+    padding: 5px 10px;
+    font-size: 0.775rem;
+  }
+
+  .angle-input-box {
+    padding: 2px 6px;
+    height: 28px;
+  }
+
+  .angle-num-input {
+    width: 34px;
+    font-size: 0.775rem;
+  }
+
+  .reset-angle-btn {
+    padding: 5px 8px;
+    height: 28px;
   }
 
   .rotation-group,

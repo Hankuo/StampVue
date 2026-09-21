@@ -16,17 +16,7 @@
       @dragleave.prevent="isDragging = false"
       @drop.prevent="handleDrop"
     >
-      <!-- 卡片頂部標題與狀態 -->
-      <div class="source-header">
-        <div class="title-wrap">
-          <span class="step-icon">📥</span>
-          <h3 class="source-title">印章來源</h3>
-        </div>
-        <span v-if="hasImage" class="source-badge loaded">已就緒</span>
-        <span v-else class="source-badge">待載入</span>
-      </div>
-
-      <!-- 醒目的雙核心主要操作按鍵 (選擇照片 / 拍照) -->
+      <!-- 雙核心主要操作按鍵 (選擇照片 / 拍照) -->
       <div class="source-action-grid">
         <!-- 選擇照片：鮮紅印鑑主題色，高對比立體發光按鍵 -->
         <button
@@ -66,12 +56,6 @@
             <span class="btn-sub-label">鏡頭拍攝</span>
           </div>
         </button>
-      </div>
-
-      <!-- 底部拖曳提示條 -->
-      <div class="source-drop-hint">
-        <span class="drop-hint-icon">📂</span>
-        <span>可直接將紙張照片拖曳至此處上傳</span>
       </div>
     </div>
 
@@ -721,10 +705,9 @@ onBeforeUnmount(() => {
 }
 
 .camera-capture-card {
-  padding: 12px 14px;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
   transition: all var(--transition-normal);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
@@ -734,45 +717,6 @@ onBeforeUnmount(() => {
   border-color: var(--accent-red);
   background: rgba(239, 68, 68, 0.12);
   box-shadow: 0 0 24px rgba(239, 68, 68, 0.25);
-}
-
-.source-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.step-icon {
-  font-size: 1.15rem;
-}
-
-.source-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.source-badge {
-  font-size: 0.675rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-subtle);
-}
-
-.source-badge.loaded {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.3);
 }
 
 /* 雙主要按鍵高對比醒目排版 */
@@ -862,32 +806,6 @@ onBeforeUnmount(() => {
 .btn-camera-hero:active {
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-}
-
-/* 底部拖放提示條 */
-.source-drop-hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 10px;
-  font-size: 0.725rem;
-  color: var(--text-muted);
-  border-radius: var(--radius-sm);
-  border: 1px dashed rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.18);
-  transition: all var(--transition-fast);
-}
-
-.drop-hint-icon {
-  font-size: 0.85rem;
-  opacity: 0.8;
-}
-
-.camera-capture-card.is-dragging .source-drop-hint {
-  border-color: var(--accent-red);
-  color: var(--text-primary);
-  background: rgba(239, 68, 68, 0.1);
 }
 
 .hidden-input {
