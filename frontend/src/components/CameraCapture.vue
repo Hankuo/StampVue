@@ -9,65 +9,69 @@
       @change="handleFileSelect"
     />
 
-    <div class="camera-capture-card glass-panel" :class="{ 'is-compact': hasImage }">
-      <!-- 情況 A: 已載入圖片時的超精簡緊湊列 (Compact Studio Bar) -->
-      <div
-        v-if="hasImage"
-        class="compact-source-box"
-        :class="{ 'is-dragging': isDragging }"
-        @dragover.prevent="isDragging = true"
-        @dragleave.prevent="isDragging = false"
-        @drop.prevent="handleDrop"
-      >
-        <div class="compact-info">
-          <span class="compact-icon">📷</span>
-          <div class="compact-text">
-            <span class="compact-title">印章來源</span>
-          </div>
+    <div
+      class="camera-capture-card glass-panel"
+      :class="{ 'is-dragging': isDragging }"
+      @dragover.prevent="isDragging = true"
+      @dragleave.prevent="isDragging = false"
+      @drop.prevent="handleDrop"
+    >
+      <!-- 卡片頂部標題與狀態 -->
+      <div class="source-header">
+        <div class="title-wrap">
+          <span class="step-icon">📥</span>
+          <h3 class="source-title">印章來源</h3>
         </div>
-        <div class="compact-buttons">
-          <button class="btn btn-secondary btn-sm" type="button" @click.stop="triggerUpload">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            選擇相片
-          </button>
-          <button class="btn btn-secondary btn-sm" type="button" @click.stop="openLiveCamera">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-            拍照
-          </button>
-        </div>
+        <span v-if="hasImage" class="source-badge loaded">已就緒</span>
+        <span v-else class="source-badge">待載入</span>
       </div>
 
-      <!-- 情況 B: 尚未載入圖片時的完整引導拖曳區 -->
-      <div v-else class="full-capture-wrap">
-        <div class="capture-header">
-          <div class="title-wrap">
-            <span class="step-badge">1</span>
-            <h3>取得印章影像</h3>
-          </div>
-          <span class="sub-tip">支援照片檔案上傳、拖曳上傳或即時視訊鏡頭拍照</span>
-        </div>
-
-        <div
-          class="dropzone"
-          :class="{ 'is-dragging': isDragging }"
-          @dragover.prevent="isDragging = true"
-          @dragleave.prevent="isDragging = false"
-          @drop.prevent="handleDrop"
+      <!-- 醒目的雙核心主要操作按鍵 (選擇照片 / 拍照) -->
+      <div class="source-action-grid">
+        <!-- 選擇照片：鮮紅印鑑主題色，高對比立體發光按鍵 -->
+        <button
+          class="source-hero-btn btn-upload-hero"
+          type="button"
+          title="從電腦或手機相簿選取照片檔案"
+          @click.stop="triggerUpload"
         >
-          <div class="dropzone-content">
-            <div class="action-buttons-group">
-              <button class="btn btn-primary" type="button" @click.stop="triggerUpload">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                選擇照片檔案
-              </button>
-              <button class="btn btn-secondary" type="button" @click.stop="openLiveCamera">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-                拍照
-              </button>
-            </div>
-            <p class="dropzone-hint">或將紙張印章相片直接拖曳至此處上傳</p>
+          <div class="btn-icon-bubble">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
           </div>
-        </div>
+          <div class="btn-text-wrap">
+            <span class="btn-title-main">選擇照片</span>
+            <span class="btn-sub-label">相簿 / 檔案</span>
+          </div>
+        </button>
+
+        <!-- 拍照：科技相機藍主題色，高對比立體發光按鍵 -->
+        <button
+          class="source-hero-btn btn-camera-hero"
+          type="button"
+          title="開啟視訊鏡頭進行即時取景拍照"
+          @click.stop="openLiveCamera"
+        >
+          <div class="btn-icon-bubble">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <div class="btn-text-wrap">
+            <span class="btn-title-main">拍照</span>
+            <span class="btn-sub-label">鏡頭拍攝</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- 底部拖曳提示條 -->
+      <div class="source-drop-hint">
+        <span class="drop-hint-icon">📂</span>
+        <span>可直接將紙張照片拖曳至此處上傳</span>
       </div>
     </div>
 
@@ -717,157 +721,177 @@ onBeforeUnmount(() => {
 }
 
 .camera-capture-card {
-  padding: 16px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   transition: all var(--transition-normal);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
 }
 
-.camera-capture-card.is-compact {
-  padding: 10px 14px;
-  background: rgba(15, 23, 42, 0.55);
+.camera-capture-card.is-dragging {
+  border-color: var(--accent-red);
+  background: rgba(239, 68, 68, 0.12);
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.25);
 }
 
-/* 超精簡快捷上傳列 (Compact Source Bar) */
-.compact-source-box {
+.source-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
-}
-
-.compact-source-box.is-dragging {
-  background: rgba(239, 68, 68, 0.15);
-  border-radius: var(--radius-md);
-}
-
-.compact-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.compact-icon {
-  font-size: 1.1rem;
-}
-
-.compact-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.compact-title {
-  font-size: 0.825rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.compact-sub {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-}
-
-.compact-buttons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-sm {
-  padding: 6px 12px;
-  font-size: 0.775rem;
-  border-radius: var(--radius-sm);
-}
-
-.full-capture-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.capture-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .title-wrap {
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+.step-icon {
+  font-size: 1.15rem;
+}
+
+.source-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.source-badge {
+  font-size: 0.675rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.source-badge.loaded {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* 雙主要按鍵高對比醒目排版 */
+.source-action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
-.step-badge {
-  background: var(--accent-red);
-  color: white;
-  font-weight: 800;
-  font-size: 0.85rem;
-  width: 24px;
-  height: 24px;
+.source-hero-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.btn-icon-bubble {
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-.capture-header h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
+.btn-text-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.25;
 }
 
-.sub-tip {
-  font-size: 0.8rem;
+.btn-title-main {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+.btn-sub-label {
+  font-size: 0.675rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* 選擇照片按鍵：高飽和印鑑鮮紅立體光暈 */
+.btn-upload-hero {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.42);
+}
+
+.btn-upload-hero:hover {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.65);
+  transform: translateY(-2px);
+}
+
+.btn-upload-hero:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+/* 拍照按鍵：科技相機深藍立體光暈 */
+.btn-camera-hero {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.42);
+}
+
+.btn-camera-hero:hover {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.65);
+  transform: translateY(-2px);
+}
+
+.btn-camera-hero:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+/* 底部拖放提示條 */
+.source-drop-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 0.725rem;
   color: var(--text-muted);
-  margin-left: 34px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.18);
+  transition: all var(--transition-fast);
+}
+
+.drop-hint-icon {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.camera-capture-card.is-dragging .source-drop-hint {
+  border-color: var(--accent-red);
+  color: var(--text-primary);
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .hidden-input {
   display: none;
-}
-
-/* Dropzone 檔案拖曳與選擇區 */
-.dropzone {
-  border: 2px dashed rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-md);
-  padding: 24px 16px;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.2);
-  transition: all var(--transition-medium);
-}
-
-.dropzone:hover,
-.dropzone.is-dragging {
-  border-color: var(--accent-red);
-  background: rgba(239, 68, 68, 0.08);
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
-}
-
-.dropzone-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-
-.action-buttons-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  width: 100%;
-}
-
-.action-buttons-group .btn {
-  flex: 1;
-  min-width: 140px;
-}
-
-.dropzone-hint {
-  font-size: 0.825rem;
-  color: var(--text-muted);
 }
 </style>
 

@@ -64,5 +64,7 @@ gantt
 | **T-30** | Core Algorithm & TDD | 藍色印章去背深度優化：引入動態噪聲底限 (Dynamic Noise Floor) 與紅光吸收純度檢驗，徹底解決冷光白紙與陰影殘留；修正陰影抑制因子；控制面板支援 0%~80% 且極限參數下白紙 100% 完全透明；新增冷光偏藍白紙與陰影 TDD 單元測試 | [stampProcessor.ts](file:///d:/AI%20Agent/StampVue/frontend/src/utils/stampProcessor.ts) / [stampExtractor.ts](file:///d:/AI%20Agent/StampVue/backend/src/services/stampExtractor.ts) / [StampControls.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/StampControls.vue) / [stampExtractor.test.ts](file:///d:/AI%20Agent/StampVue/backend/tests/stampExtractor.test.ts) | ✅ 已完成 |
 | **T-31** | Frontend UX | 預覽區域精簡：固定保留透明棋盤底色 (Checkerboard) 與純去背成果 (Extracted)，移除預覽頂部底色與檢視切換按鍵 | [ImagePreview.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/ImagePreview.vue) | ✅ 已完成 |
 | **T-32** | Algorithm & UX | 1. 徹底修復陰影抑制參數無效問題：引入暗部動態色偏雜訊底限 (Dynamic Shadow Chroma Floor) 與真實環境漫射調校，使 0%~100% 具備顯著且細膩之抑制效果，並新增 TDD 單元測試 2. 大幅加大預覽畫布高度至 520px (行動端 320~400px)，提升檢視體驗 | [stampProcessor.ts](file:///d:/AI%20Agent/StampVue/frontend/src/utils/stampProcessor.ts) / [stampExtractor.ts](file:///d:/AI%20Agent/StampVue/backend/src/services/stampExtractor.ts) / [ImagePreview.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/ImagePreview.vue) / [stampExtractor.test.ts](file:///d:/AI%20Agent/StampVue/backend/tests/stampExtractor.test.ts) | ✅ 已完成 |
+| **T-33** | Frontend UX | 重新設計「印章來源」卡片 UX：統一雙態介面為高對比雙主操作排版，將「選擇照片」（印鑑紅漸層立體光暈）與「拍照」（科技藍立體光暈）按鍵放大醒目呈現，並整合底部拖放提示區 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
+
 
 
