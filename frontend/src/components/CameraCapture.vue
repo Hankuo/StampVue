@@ -123,7 +123,7 @@
             <button class="btn btn-secondary" type="button" @click.stop="closeLiveCamera">取消</button>
             <button class="btn btn-primary btn-shutter" type="button" @click.stop.prevent="captureStreamFrame">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
-              依裁切框拍照擷取
+              拍照
             </button>
           </div>
         </div>
