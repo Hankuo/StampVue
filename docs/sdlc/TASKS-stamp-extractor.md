@@ -70,6 +70,7 @@ gantt
 | **T-36** | Packaging & Distribution | 將 StampVue 封裝為通用跨網頁套件：支援 ESM (`.mjs`)、UMD (`.umd.js` 全域 `StampVue`)、無頭核心 `StampProcessor`、開箱即用彈窗 `openStampModal`、Vue 元件 `StampWorkbench` 與純 HTML 範例 | [index.lib.ts](file:///d:/AI%20Agent/StampVue/frontend/src/index.lib.ts) / [vite.config.lib.ts](file:///d:/AI%20Agent/StampVue/frontend/vite.config.lib.ts) / [package.json](file:///d:/AI%20Agent/StampVue/frontend/package.json) / [index.html](file:///d:/AI%20Agent/StampVue/examples/vanilla-html/index.html) | ✅ 已完成 |
 | **T-37** | Frontend UX | 調整即時視訊鏡頭取景拍照按鈕文案，將「依裁切框拍照擷取」精簡為「拍照」 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 | **T-38** | Frontend UX | 1. 移除視訊頂部標題「即時鏡頭取景」 2.「裁切框尺寸」字型調大 2 級 (0.8rem -> 1.05rem, bold) 3.「將印章置於框內」移至框外下方並調大 2 級 (0.725rem -> 0.95rem) 避免遮擋印面 4.「取消」與「拍照」按鈕間隔擴大為 28px 防止誤觸 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
+| **T-39** | Frontend UX | 1. 移除視訊取景底部「取消」按鈕，改由右上角關閉 2. 右上角「✕」按鈕加大為 38px 圓鈕高對比發光呈現 3.「依紅框精準裁切」移至取景框上方居中標示 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 
 
 

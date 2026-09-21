@@ -64,10 +64,7 @@
         <div class="modal-backdrop" @click.stop="closeLiveCamera"></div>
         <div class="modal-card glass-panel">
           <div class="modal-header">
-            <div class="modal-title-row">
-              <span class="crop-guide-tip">依紅框精準裁切</span>
-            </div>
-            <button class="close-btn" type="button" @click.stop="closeLiveCamera">✕</button>
+            <button class="close-btn" type="button" title="關閉" @click.stop="closeLiveCamera">✕</button>
           </div>
 
           <!-- 裁切框尺寸快速調整 -->
@@ -109,6 +106,8 @@
               class="crosshair-guide"
               :style="{ width: `${cropSize}px`, height: `${cropSize}px` }"
             >
+              <!-- 移至取景框上方之引導提示 -->
+              <span class="crop-guide-tip">依紅框精準裁切</span>
               <div class="corner corner-tl"></div>
               <div class="corner corner-tr"></div>
               <div class="corner corner-bl"></div>
@@ -118,8 +117,7 @@
             </div>
           </div>
 
-          <div class="modal-actions">
-            <button class="btn btn-secondary" type="button" @click.stop="closeLiveCamera">取消</button>
+          <div class="modal-actions live-camera-actions">
             <button class="btn btn-primary btn-shutter" type="button" @click.stop.prevent="captureStreamFrame">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
               拍照
@@ -866,26 +864,48 @@ onBeforeUnmount(() => {
 }
 
 .live-camera-modal .crop-guide-tip {
-  font-size: 0.75rem;
-  background: rgba(239, 68, 68, 0.18);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  padding: 2px 8px;
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.95rem;
+  background: rgba(239, 68, 68, 0.28);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  padding: 4px 14px;
   border-radius: var(--radius-full);
-  font-weight: 600;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
 }
 
 .live-camera-modal .close-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 1.2rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 800;
   cursor: pointer;
-  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  margin-left: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  line-height: 1;
 }
 
 .live-camera-modal .close-btn:hover {
-  color: var(--text-primary);
+  background: rgba(239, 68, 68, 0.88);
+  border-color: #ef4444;
+  color: #ffffff;
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5);
 }
 
 /* 裁切框尺寸調整工具列 */
@@ -1123,6 +1143,21 @@ onBeforeUnmount(() => {
   gap: 28px;
   z-index: 1000001;
   position: relative;
+}
+
+.live-camera-modal .live-camera-actions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.live-camera-modal .live-camera-actions .btn-shutter {
+  min-width: 160px;
+  padding: 11px 32px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.45);
 }
 
 .live-camera-modal .btn-shutter {
