@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./dist-lib/types",
+    "noEmit": false
+  },
+  "include": [
+    "src/vite-env.d.ts",
+    "src/index.lib.ts",
+    "src/modal.ts",
+    "src/utils/stampProcessor.ts",
+    "src/types/**/*.ts"
+  ]
+}

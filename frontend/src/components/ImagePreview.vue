@@ -135,17 +135,24 @@ import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import confetti from 'canvas-confetti';
 import type { StampOptions, ProcessedStampResult, PreviewBackground } from '../types/stamp';
 
-const props = defineProps<{
-  originalImageUrl: string;
-  result: ProcessedStampResult | null;
-  currentOptions: StampOptions;
-}>();
+const props = withDefaults(
+  defineProps<{
+    originalImageUrl: string;
+    result: ProcessedStampResult | null;
+    currentOptions: StampOptions;
+    autoDownloadOnExport?: boolean;
+  }>(),
+  {
+    autoDownloadOnExport: true
+  }
+);
 
 const emit = defineEmits<{
   (e: 'update:rotation', angle: number): void;
   (e: 'rotate', angle: number): void;
   (e: 'update:colorMode', mode: 'red' | 'blue'): void;
   (e: 'update:color-mode', mode: 'red' | 'blue'): void;
+  (e: 'export', result: ProcessedStampResult): void;
 }>();
 
 // 預設為純去背顯示
@@ -244,19 +251,23 @@ const resetZoom = () => zoomScale.value = 1;
 
 const downloadPng = () => {
   if (!props.result) return;
-  const a = document.createElement('a');
-  a.href = props.result.dataUrl;
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  a.download = `stamp_extracted_${timestamp}.png`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  if (props.autoDownloadOnExport !== false) {
+    const a = document.createElement('a');
+    a.href = props.result.dataUrl;
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    a.download = `stamp_extracted_${timestamp}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 
-  confetti({
-    particleCount: 80,
-    spread: 60,
-    origin: { y: 0.8 }
-  });
+    confetti({
+      particleCount: 80,
+      spread: 60,
+      origin: { y: 0.8 }
+    });
+  }
+
+  emit('export', props.result);
 };
 
 onBeforeUnmount(() => {

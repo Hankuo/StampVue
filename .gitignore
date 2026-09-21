@@ -5,7 +5,9 @@ backend/node_modules/
 
 # Production Build outputs
 dist/
+dist-lib/
 frontend/dist/
+frontend/dist-lib/
 backend/dist/
 
 # Logs & temp

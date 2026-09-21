@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StampVue 套件外部網頁引入範例 (Vanilla HTML Demo)</title>
+  
+  <!-- 1. 引入 StampVue 樣式檔 -->
+  <link rel="stylesheet" href="../../frontend/dist-lib/stampvue.css" />
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      margin: 0;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .demo-container {
+      max-width: 800px;
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-top: 0;
+      color: #ef4444;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    p.desc {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+    }
+
+    .btn-secondary {
+      background: #334155;
+      color: #f8fafc;
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background: #475569;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .result-section {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .result-section h3 {
+      font-size: 1.1rem;
+      margin: 0 0 12px 0;
+      color: #38bdf8;
+    }
+
+    .preview-box {
+      width: 100%;
+      min-height: 220px;
+      border-radius: 12px;
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #ffffff;
+      background-image: 
+        linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+        linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+        linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      overflow: hidden;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .preview-img {
+      max-width: 100%;
+      max-height: 260px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+    }
+
+    .meta-tag {
+      margin-top: 12px;
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="demo-container">
+    <h1>🖃 StampVue 第三方外部網頁套件引入範例</h1>
+    <p class="desc">
+      本頁面示範在<strong>完全無建置步驟的純靜態 HTML</strong> 網頁中，透過單一 <code>&lt;script src="stampvue.umd.js"&gt;</code> 載入 StampVue 套件，支援兩種主要使用模式：
+    </p>
+
+    <div class="action-row">
+      <!-- 方式一：開箱即用互動工作台彈窗 -->
+      <button id="open-modal-btn" class="btn-action" type="button">
+        🚀 一鍵呼叫去背彈窗 (openStampModal)
+      </button>
+
+      <!-- 方式二：無頭純演算法呼叫 -->
+      <label class="btn-action btn-secondary" style="cursor: pointer;">
+        🧪 無頭演算法直接去背 (StampProcessor)
+        <input type="file" id="headless-file-input" accept="image/*" style="display: none;" />
+      </label>
+    </div>
+
+    <div class="result-section">
+      <h3>去背結果展示區</h3>
+      <div class="preview-box">
+        <span id="placeholder-text" style="color: #64748b; font-weight: 600;">尚未產出去背成果，請點擊上方按鈕測試</span>
+        <img id="result-image" class="preview-img" style="display: none;" alt="去背結果" />
+      </div>
+      <div id="meta-container" style="display: none;">
+        <span id="meta-text" class="meta-tag"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 引入 StampVue UMD 套件 (暴露全域變數 window.StampVue) -->
+  <script src="../../frontend/dist-lib/stampvue.umd.js"></script>
+
+  <script>
+    console.log('StampVue 套件載入成功:', window.StampVue);
+
+    const resultImage = document.getElementById('result-image');
+    const placeholderText = document.getElementById('placeholder-text');
+    const metaContainer = document.getElementById('meta-container');
+    const metaText = document.getElementById('meta-text');
+
+    function displayResult(result) {
+      if (!result) return;
+      resultImage.src = result.dataUrl;
+      resultImage.style.display = 'block';
+      placeholderText.style.display = 'none';
+      metaContainer.style.display = 'block';
+      metaText.textContent = `去背完成！墨色判定: ${result.detectedColor === 'blue' ? '藍印' : '紅印'} | 尺寸: ${result.width}x${result.height} | 耗時: ${result.processingTimeMs.toFixed(1)}ms`;
+    }
+
+    // ==========================================
+    // 方式一：開箱即用互動工作台彈窗 (openStampModal)
+    // ==========================================
+    document.getElementById('open-modal-btn').onclick = async () => {
+      // 呼叫套件導出之 openStampModal 函式
+      const result = await StampVue.openStampModal({
+        title: '我的印章提取工具',
+        autoDownload: false, // 外部網頁可自行決定是否直接下載，或取回 dataUrl
+        onConfirm: (res) => {
+          console.log('使用者確認匯出:', res);
+          displayResult(res);
+        },
+        onCancel: () => {
+          console.log('使用者關閉彈窗');
+        }
+      });
+
+      if (result) {
+        displayResult(result);
+      }
+    };
+
+    // ==========================================
+    // 方式二：無頭純演算法直接呼叫 (StampProcessor)
+    // ==========================================
+    document.getElementById('headless-file-input').onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = async () => {
+          // 直接調用 StampProcessor 核心演算法
+          const result = await StampVue.StampProcessor.processImage(img, {
+            colorMode: 'auto',
+            threshold: 40,
+            shadowSuppression: 40,
+            rotation: 0
+          });
+          console.log('純演算法去背成功:', result);
+          displayResult(result);
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    };
+  </script>
+</body>
+</html>

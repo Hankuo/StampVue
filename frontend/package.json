@@ -1,11 +1,30 @@
 {
-  "name": "stampvue-frontend",
-  "private": true,
+  "name": "stampvue",
   "version": "1.0.0",
+  "description": "Professional Client-Side Stamp Extraction & Shadow Removal Toolkit (Headless SDK + Drop-in Modal Widget)",
   "type": "module",
+  "main": "./dist-lib/stampvue.umd.js",
+  "module": "./dist-lib/stampvue.mjs",
+  "types": "./dist-lib/types/index.lib.d.ts",
+  "style": "./dist-lib/stampvue.css",
+  "unpkg": "./dist-lib/stampvue.umd.js",
+  "jsdelivr": "./dist-lib/stampvue.umd.js",
+  "exports": {
+    ".": {
+      "types": "./dist-lib/types/index.lib.d.ts",
+      "import": "./dist-lib/stampvue.mjs",
+      "require": "./dist-lib/stampvue.umd.js"
+    },
+    "./style.css": "./dist-lib/stampvue.css",
+    "./stampvue.css": "./dist-lib/stampvue.css"
+  },
+  "files": [
+    "dist-lib"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:lib": "vite build --config vite.config.lib.ts && tsc -p tsconfig.lib.json",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },
