@@ -69,6 +69,7 @@ gantt
 | **T-35** | Project Architecture & Cleanup | 架構審查確認系統為 100% 純客戶端 (Canvas 2D + WebRTC)，完全未調用後端 API，安全移除未使用的 `backend/` 資料夾並清理根目錄 `package.json` 指令 | [package.json](file:///d:/AI%20Agent/StampVue/package.json) / `backend/` | ✅ 已完成 |
 | **T-36** | Packaging & Distribution | 將 StampVue 封裝為通用跨網頁套件：支援 ESM (`.mjs`)、UMD (`.umd.js` 全域 `StampVue`)、無頭核心 `StampProcessor`、開箱即用彈窗 `openStampModal`、Vue 元件 `StampWorkbench` 與純 HTML 範例 | [index.lib.ts](file:///d:/AI%20Agent/StampVue/frontend/src/index.lib.ts) / [vite.config.lib.ts](file:///d:/AI%20Agent/StampVue/frontend/vite.config.lib.ts) / [package.json](file:///d:/AI%20Agent/StampVue/frontend/package.json) / [index.html](file:///d:/AI%20Agent/StampVue/examples/vanilla-html/index.html) | ✅ 已完成 |
 | **T-37** | Frontend UX | 調整即時視訊鏡頭取景拍照按鈕文案，將「依裁切框拍照擷取」精簡為「拍照」 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
+| **T-38** | Frontend UX | 1. 移除視訊頂部標題「即時鏡頭取景」 2.「裁切框尺寸」字型調大 2 級 (0.8rem -> 1.05rem, bold) 3.「將印章置於框內」移至框外下方並調大 2 級 (0.725rem -> 0.95rem) 避免遮擋印面 4.「取消」與「拍照」按鈕間隔擴大為 28px 防止誤觸 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 
 
 

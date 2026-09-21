@@ -65,7 +65,6 @@
         <div class="modal-card glass-panel">
           <div class="modal-header">
             <div class="modal-title-row">
-              <h4>即時鏡頭取景</h4>
               <span class="crop-guide-tip">依紅框精準裁切</span>
             </div>
             <button class="close-btn" type="button" @click.stop="closeLiveCamera">✕</button>
@@ -910,9 +909,9 @@ onBeforeUnmount(() => {
 }
 
 .live-camera-modal .toolbar-label {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 .live-camera-modal .size-btn-group {
@@ -1099,22 +1098,29 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 6px rgba(239, 68, 68, 0.9);
 }
 
-/* 提示文字 */
+/* 提示文字 (移至框外下方並將字型調大2級) */
 .live-camera-modal .guide-tag {
   position: absolute;
-  bottom: 8px;
-  font-size: 0.725rem;
-  background: rgba(0, 0, 0, 0.65);
-  color: white;
-  padding: 2px 8px;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  padding: 4px 14px;
   border-radius: var(--radius-full);
   letter-spacing: 0.5px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
 }
 
 .live-camera-modal .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 28px;
   z-index: 1000001;
   position: relative;
 }
