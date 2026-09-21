@@ -71,6 +71,7 @@ gantt
 | **T-37** | Frontend UX | 調整即時視訊鏡頭取景拍照按鈕文案，將「依裁切框拍照擷取」精簡為「拍照」 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 | **T-38** | Frontend UX | 1. 移除視訊頂部標題「即時鏡頭取景」 2.「裁切框尺寸」字型調大 2 級 (0.8rem -> 1.05rem, bold) 3.「將印章置於框內」移至框外下方並調大 2 級 (0.725rem -> 0.95rem) 避免遮擋印面 4.「取消」與「拍照」按鈕間隔擴大為 28px 防止誤觸 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 | **T-39** | Frontend UX | 1. 移除視訊取景底部「取消」按鈕，改由右上角關閉 2. 右上角「✕」按鈕加大為 38px 圓鈕高對比發光呈現 3.「依紅框精準裁切」移至取景框上方居中標示 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
+| **T-40** | Frontend UX | 「選擇照片」後之「裁切印章」彈窗全面比照 CameraCapture 優化：1. 移除頂部標題「裁切印章」，僅保留醒目圓鈕「✕」 2. 取景框上方新增居中「依紅框精準裁切」提示 3. 取景框下方統一為「🎯 將印章置於框內」 4. 移除底部「取消」按鍵 5. 底部「裁切」主操作按鍵居中並加大 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 
 
 

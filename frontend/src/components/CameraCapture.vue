@@ -131,17 +131,14 @@
         <div class="modal-backdrop" @click.stop="closeUploadCropper"></div>
         <div class="modal-card glass-panel">
           <div class="modal-header">
-            <div class="modal-title-row">
-              <h4>裁切印章</h4>
-            </div>
-            <button class="close-btn" type="button" @click.stop="closeUploadCropper">✕</button>
+            <button class="close-btn" type="button" title="關閉" @click.stop="closeUploadCropper">✕</button>
           </div>
 
           <!-- 尺寸與縮放工具列 (支援裁切框尺寸與照片縮放微調) -->
           <div class="crop-size-toolbar">
             <!-- 1. 裁切框尺寸與縮放按鍵 -->
             <div class="toolbar-section">
-              <span class="toolbar-label">裁切框:</span>
+              <span class="toolbar-label">裁切框尺寸:</span>
               <div class="size-btn-group">
                 <button
                   type="button"
@@ -252,6 +249,9 @@
               @mousedown.stop="startCropDrag"
               @touchstart.stop="startCropDrag"
             >
+              <!-- 移至取景框上方之引導提示 -->
+              <span class="crop-guide-tip">依紅框精準裁切</span>
+
               <!-- 4 條邊框縮放把手 -->
               <div class="resize-edge edge-t" @mousedown.stop="startResizeDrag($event, 't')" @touchstart.stop="startResizeDrag($event, 't')"></div>
               <div class="resize-edge edge-b" @mousedown.stop="startResizeDrag($event, 'b')" @touchstart.stop="startResizeDrag($event, 'b')"></div>
@@ -265,16 +265,13 @@
               <div class="corner corner-br" @mousedown.stop="startResizeDrag($event, 'br')" @touchstart.stop="startResizeDrag($event, 'br')"></div>
 
               <div class="crosshair-center"></div>
-              <span class="guide-tag">🎯 移動 / 邊角縮放 ({{ Math.round(uploadCropSize) }}px)</span>
+              <span class="guide-tag">🎯 將印章置於框內</span>
             </div>
           </div>
 
-          <div class="modal-actions">
-            <button class="btn btn-secondary" type="button" @click.stop="closeUploadCropper">
-              取消
-            </button>
+          <div class="modal-actions live-camera-actions">
             <button class="btn btn-primary btn-shutter" type="button" @click.stop.prevent="confirmUploadCrop">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
               裁切
             </button>
           </div>
