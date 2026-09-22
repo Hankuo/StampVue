@@ -73,6 +73,8 @@ gantt
 | **T-39** | Frontend UX | 1. 移除視訊取景底部「取消」按鈕，改由右上角關閉 2. 右上角「✕」按鈕加大為 38px 圓鈕高對比發光呈現 3.「依紅框精準裁切」移至取景框上方居中標示 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 | **T-40** | Frontend UX | 「選擇照片」後之「裁切印章」彈窗全面比照 CameraCapture 優化：1. 移除頂部標題「裁切印章」，僅保留醒目圓鈕「✕」 2. 取景框上方新增居中「依紅框精準裁切」提示 3. 取景框下方統一為「🎯 將印章置於框內」 4. 移除底部「取消」按鍵 5. 底部「裁切」主操作按鍵居中並加大 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 | **T-41** | Frontend Theme & UX | 1. 背景與全域色彩參考 BreezySign (好好簽) 配色體系：深邃翡翠綠 `#00653e`、明亮綠 `#009149`、標題靛深藍 `#182b4d`、極簡淺白底 `#fafafc` 現代 SaaS 風格 2. 裁切框尺寸移除「縮小」與「放大」按鍵 3.「照片縮放」與「裁切框尺寸」等按鍵居中排版 4.「去背參數」之「重設」按鈕強化為醒目綠調精緻按鍵 5.「陰影抑制」與「去背強度」間隔由 6px 加大至 18px 6.「去背強度(靈敏度)」精簡更名為「去背強度」 | [style.css](file:///d:/AI%20Agent/StampVue/frontend/src/style.css) / [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) / [StampControls.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/StampControls.vue) / [ImagePreview.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/ImagePreview.vue) / [StampModal.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/StampModal.vue) / [index.html](file:///d:/AI%20Agent/StampVue/examples/vanilla-html/index.html) | ✅ 已完成 |
+| **T-42** | Frontend UX & Cropper | 1.「選擇照片」之「裁切框尺寸」規格按鈕對齊「拍照」排版：小印 (140px)、標準 (180px)、大印 (220px) 2.「照片縮放」移除「重設 (⟲)」按鈕，＋、－與 100% 指示器居中排版 3.「選擇照片」彈窗全畫面排版統一置中處理 (雙行全寬居中工具列、畫布置中、底部裁切鈕置中) | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
+
 
 
 

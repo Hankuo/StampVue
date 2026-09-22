@@ -136,7 +136,7 @@
 
           <!-- 尺寸與縮放工具列 (支援裁切框尺寸與照片縮放微調) -->
           <div class="crop-size-toolbar">
-            <!-- 1. 裁切框尺寸與縮放按鍵 -->
+            <!-- 1. 裁切框尺寸快速調整 (參考拍照排版) -->
             <div class="toolbar-section">
               <span class="toolbar-label">裁切框尺寸:</span>
               <div class="size-btn-group">
@@ -146,7 +146,7 @@
                   :class="{ active: Math.round(uploadCropSize) === 140 }"
                   @click.stop="uploadCropSize = 140"
                 >
-                  140px
+                  小印 (140px)
                 </button>
                 <button
                   type="button"
@@ -154,20 +154,20 @@
                   :class="{ active: Math.round(uploadCropSize) === 180 }"
                   @click.stop="uploadCropSize = 180"
                 >
-                  180px
+                  標準 (180px)
                 </button>
                 <button
                   type="button"
                   class="size-btn"
-                  :class="{ active: Math.round(uploadCropSize) === 240 }"
-                  @click.stop="uploadCropSize = 240"
+                  :class="{ active: Math.round(uploadCropSize) === 220 }"
+                  @click.stop="uploadCropSize = 220"
                 >
-                  240px
+                  大印 (220px)
                 </button>
               </div>
             </div>
 
-            <!-- 2. 照片視角縮放按鍵 -->
+            <!-- 2. 照片視角縮放按鍵 (＋、－、100% 置中，移除重設) -->
             <div class="toolbar-section">
               <span class="toolbar-label">照片縮放:</span>
               <div class="size-btn-group image-zoom-group">
@@ -189,14 +189,6 @@
                   @click.stop="zoomUploadImage(0.2)"
                 >
                   ＋
-                </button>
-                <button
-                  type="button"
-                  class="size-btn step-btn"
-                  title="重設照片縮放 (100%)"
-                  @click.stop="resetUploadImageZoom"
-                >
-                  ⟲
                 </button>
               </div>
             </div>
@@ -898,14 +890,24 @@ onBeforeUnmount(() => {
   padding: 10px 14px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
+  width: 100%;
+}
+
+/* 選擇照片專用排版：雙行全寬置中對齊 */
+.upload-cropper-modal .crop-size-toolbar {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
 
 .live-camera-modal .toolbar-section {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .live-camera-modal .toolbar-label {
