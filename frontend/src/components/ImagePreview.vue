@@ -444,17 +444,18 @@ onBeforeUnmount(() => {
 .tag-left { left: 8px; background: rgba(0, 0, 0, 0.7); color: white; }
 .tag-right { right: 8px; background: rgba(239, 68, 68, 0.85); color: white; }
 
-/* 預覽最下方控制列 (旋轉與縮放，無 Label，可輸入角度) */
+/* 預覽最下方控制列 (旋轉與縮放，無 Label，可輸入角度，固定單行不換行) */
 .preview-bottom-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
   padding: 6px 10px;
   background: #f8fafc;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  white-space: nowrap;
 }
 
 .rotation-group,
@@ -462,6 +463,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 /* 調大旋轉按鍵 (Rotate Buttons) */
@@ -559,13 +561,12 @@ onBeforeUnmount(() => {
   border-color: #94a3b8;
 }
 
-/* 縮放按鍵寬度加長與質感提升 */
+/* 縮放按鍵寬度加長 (高度不調整，維持原緊湊高度) */
 .zoom-group .tool-btn {
-  min-width: 44px;
-  padding: 5px 16px;
-  font-size: 0.85rem;
+  min-width: 32px;
+  padding: 3px 10px;
+  font-size: 0.775rem;
   font-weight: 700;
-  height: 32px;
 }
 
 .zoom-group .tool-btn:hover {
@@ -575,18 +576,10 @@ onBeforeUnmount(() => {
 }
 
 .zoom-val {
-  min-width: 48px;
-  font-size: 0.8rem;
+  font-size: 0.725rem;
   font-weight: 700;
   color: var(--text-primary);
-  padding: 4px 8px;
-  background: #ffffff;
-  border-radius: var(--radius-sm);
-  border: 1px solid #cbd5e1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 32px;
+  padding: 0 4px;
 }
 
 /* 匯出動作按鈕 */
@@ -649,14 +642,14 @@ onBeforeUnmount(() => {
     font-size: 0.775rem;
   }
 
-  .reset-angle-btn {
-    padding: 5px 8px;
-    height: 28px;
-  }
-
   .rotation-group,
   .zoom-group {
     gap: 4px;
+  }
+
+  .zoom-group .tool-btn {
+    min-width: 26px;
+    padding: 3px 6px;
   }
 
   .tool-btn {
