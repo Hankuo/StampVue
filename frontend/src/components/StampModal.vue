@@ -83,9 +83,9 @@ const handleCancel = () => {
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(15, 23, 42, 0.94);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 40px rgba(239, 68, 68, 0.12);
+  border: 1px solid var(--border-subtle);
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(24, 43, 77, 0.2), 0 0 40px rgba(0, 101, 62, 0.1);
   overflow: hidden;
   animation: modalEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -107,7 +107,7 @@ const handleCancel = () => {
   justify-content: space-between;
   padding: 12px 18px;
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(15, 23, 42, 0.7);
+  background: #f8fafc;
 }
 
 .stampvue-modal-title {
@@ -132,8 +132,8 @@ const handleCancel = () => {
   height: 32px;
   border-radius: 50%;
   border: 1px solid var(--border-subtle);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary);
+  background: #ffffff;
+  color: #4b5563;
   font-size: 0.95rem;
   cursor: pointer;
   display: flex;
@@ -143,8 +143,8 @@ const handleCancel = () => {
 }
 
 .stampvue-close-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: var(--accent-red);
+  background: #ef4444;
+  border-color: #ef4444;
   color: #ffffff;
 }
 

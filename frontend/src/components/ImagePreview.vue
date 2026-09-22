@@ -317,8 +317,8 @@ onBeforeUnmount(() => {
 }
 
 .stamp-color-select {
-  background: var(--bg-input);
-  border: 1px solid var(--border-subtle);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   color: var(--text-primary);
   font-size: 0.775rem;
   font-weight: 700;
@@ -331,8 +331,8 @@ onBeforeUnmount(() => {
 
 .stamp-color-select:hover,
 .stamp-color-select:focus {
-  border-color: var(--accent-red);
-  background: var(--bg-glass-hover);
+  border-color: #00653e;
+  background: #f8fafc;
 }
 
 /* 畫布核心區 (降低高度以優化工作台視野) */
@@ -348,7 +348,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   user-select: none;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
 .empty-placeholder {
@@ -462,7 +462,7 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   gap: 8px;
   padding: 6px 10px;
-  background: rgba(15, 23, 42, 0.65);
+  background: #f8fafc;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
 }
@@ -480,19 +480,19 @@ onBeforeUnmount(() => {
   font-size: 0.85rem;
   font-weight: 700;
   gap: 5px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: all var(--transition-fast);
 }
 
 .rotate-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.45);
-  color: #ffffff;
-  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25);
+  background: rgba(0, 101, 62, 0.08);
+  border-color: #00653e;
+  color: #00653e;
+  box-shadow: 0 2px 8px rgba(0, 101, 62, 0.2);
   transform: translateY(-1px);
 }
 
@@ -510,8 +510,8 @@ onBeforeUnmount(() => {
 .angle-input-box {
   display: inline-flex;
   align-items: center;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(0, 101, 62, 0.06);
+  border: 1px solid rgba(0, 101, 62, 0.25);
   border-radius: var(--radius-sm);
   padding: 3px 8px;
   height: 32px;
@@ -521,7 +521,7 @@ onBeforeUnmount(() => {
   width: 40px;
   background: transparent;
   border: none;
-  color: #f87171;
+  color: #00653e;
   font-size: 0.85rem;
   font-weight: 700;
   text-align: right;
@@ -538,7 +538,7 @@ onBeforeUnmount(() => {
 .deg-sym {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #f87171;
+  color: #00653e;
   margin-left: 2px;
 }
 
@@ -549,8 +549,8 @@ onBeforeUnmount(() => {
 }
 
 .tool-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   color: var(--text-secondary);
   font-size: 0.725rem;
   font-weight: 600;
@@ -564,9 +564,9 @@ onBeforeUnmount(() => {
 }
 
 .tool-btn:hover {
-  background: var(--bg-glass-hover);
+  background: #f1f5f9;
   color: var(--text-primary);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: #94a3b8;
 }
 
 .zoom-val {

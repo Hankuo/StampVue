@@ -142,15 +142,6 @@
               <div class="size-btn-group">
                 <button
                   type="button"
-                  class="size-btn step-btn"
-                  title="縮小裁切框 (-20px)"
-                  @click.stop="zoomCropBox(-20)"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  縮小
-                </button>
-                <button
-                  type="button"
                   class="size-btn"
                   :class="{ active: Math.round(uploadCropSize) === 140 }"
                   @click.stop="uploadCropSize = 140"
@@ -172,15 +163,6 @@
                   @click.stop="uploadCropSize = 240"
                 >
                   240px
-                </button>
-                <button
-                  type="button"
-                  class="size-btn step-btn"
-                  title="放大裁切框 (+20px)"
-                  @click.stop="zoomCropBox(20)"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  放大
                 </button>
               </div>
             </div>
@@ -882,10 +864,10 @@ onBeforeUnmount(() => {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #ffffff;
-  font-size: 1.4rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #4b5563;
+  font-size: 1.25rem;
   font-weight: 800;
   cursor: pointer;
   display: flex;
@@ -893,27 +875,27 @@ onBeforeUnmount(() => {
   justify-content: center;
   transition: all var(--transition-fast);
   margin-left: auto;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   line-height: 1;
 }
 
 .live-camera-modal .close-btn:hover {
-  background: rgba(239, 68, 68, 0.88);
+  background: #ef4444;
   border-color: #ef4444;
   color: #ffffff;
-  transform: scale(1.1);
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5);
+  transform: scale(1.08);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
 }
 
-/* 裁切框尺寸調整工具列 */
+/* 裁切框尺寸調整工具列 (居中排版) */
 .live-camera-modal .crop-size-toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   flex-wrap: wrap;
-  gap: 10px;
-  background: rgba(0, 0, 0, 0.35);
-  padding: 8px 12px;
+  gap: 16px;
+  background: #f8fafc;
+  padding: 10px 14px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
 }
@@ -921,6 +903,7 @@ onBeforeUnmount(() => {
 .live-camera-modal .toolbar-section {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -934,6 +917,7 @@ onBeforeUnmount(() => {
 .live-camera-modal .size-btn-group {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
 }
 
@@ -942,13 +926,16 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  font-weight: 600;
+  font-weight: 700;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: var(--text-primary);
 }
 
 .live-camera-modal .step-btn:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #f87171;
+  background: rgba(0, 101, 62, 0.08);
+  border-color: #00653e;
+  color: #00653e;
 }
 
 .live-camera-modal .step-btn:disabled {
@@ -960,38 +947,40 @@ onBeforeUnmount(() => {
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-primary);
-  min-width: 44px;
+  min-width: 46px;
   text-align: center;
-  padding: 3px 6px;
-  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 8px;
+  background: #ffffff;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid #cbd5e1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .live-camera-modal .size-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   color: var(--text-secondary);
-  font-size: 0.75rem;
-  padding: 4px 10px;
+  font-size: 0.775rem;
+  font-weight: 600;
+  padding: 5px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .live-camera-modal .size-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #f1f5f9;
   color: var(--text-primary);
+  border-color: #94a3b8;
 }
 
 .live-camera-modal .size-btn.active {
-  background: var(--accent-red);
+  background: #00653e;
   color: white;
-  border-color: var(--accent-red);
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+  border-color: #00653e;
+  box-shadow: 0 2px 8px rgba(0, 101, 62, 0.35);
 }
 
 .live-camera-modal .video-container {

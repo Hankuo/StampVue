@@ -31,10 +31,10 @@
         </div>
       </div>
 
-      <!-- 去背強度 (靈敏度) -->
+      <!-- 去背強度 -->
       <div class="slider-row">
         <div class="slider-meta">
-          <span class="label-text" title="去背判斷強度：數值越高去背越強，可消除頑固背景；數值越低保留越多淡印細節">⚖️ 去背強度 (靈敏度)</span>
+          <span class="label-text" title="去背判斷強度：數值越高去背越強，可消除頑固背景；數值越低保留越多淡印細節">⚖️ 去背強度</span>
           <span class="slider-val">{{ currentVal.threshold }}%</span>
         </div>
         <div class="slider-input-wrapper">
@@ -149,36 +149,44 @@ const resetDefaults = () => {
 }
 
 .reset-btn {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  font-size: 0.725rem;
-  padding: 3px 8px;
+  background: rgba(0, 101, 62, 0.08);
+  border: 1px solid rgba(0, 101, 62, 0.28);
+  color: #00653e;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 5px 12px;
   border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   cursor: pointer;
   transition: all var(--transition-fast);
+  box-shadow: 0 1px 3px rgba(0, 101, 62, 0.08);
 }
 
 .reset-btn:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  background: #00653e;
+  border-color: #00653e;
+  box-shadow: 0 3px 10px rgba(0, 101, 62, 0.25);
+  transform: translateY(-1px);
 }
 
-/* 高密度精簡滑桿區 */
+.reset-btn:active {
+  transform: translateY(0);
+}
+
+/* 高密度精簡滑桿區 (間隔加大提供充裕視覺呼吸感) */
 .sliders-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 18px;
 }
 
 .slider-row {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
 }
 
 .slider-meta {
@@ -188,18 +196,18 @@ const resetDefaults = () => {
 }
 
 .label-text {
-  font-size: 0.775rem;
+  font-size: 0.825rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .slider-val {
-  font-size: 0.725rem;
+  font-size: 0.775rem;
   font-weight: 700;
-  color: #f87171;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  padding: 1px 6px;
+  color: #00653e;
+  background: rgba(0, 101, 62, 0.08);
+  border: 1px solid rgba(0, 101, 62, 0.22);
+  padding: 2px 8px;
   border-radius: var(--radius-sm);
 }
 
