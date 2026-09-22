@@ -100,15 +100,6 @@
           <span class="rotate-icon">↻</span>
           <span>90°</span>
         </button>
-        <button
-          v-if="(currentOptions.rotation || 0) !== 0"
-          type="button"
-          class="tool-btn reset-angle-btn"
-          title="重設旋轉角度為 0°"
-          @click="setRotation(0)"
-        >
-          ⟲
-        </button>
       </div>
 
       <!-- 縮放控制群組 -->
@@ -116,7 +107,6 @@
         <button class="tool-btn" @click="zoomOut" title="縮小">－</button>
         <span class="zoom-val">{{ Math.round(zoomScale * 100) }}%</span>
         <button class="tool-btn" @click="zoomIn" title="放大">＋</button>
-        <button class="tool-btn reset-zoom" @click="resetZoom" title="重設縮放">⟲</button>
       </div>
     </div>
 
