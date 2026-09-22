@@ -79,6 +79,8 @@ gantt
 | **T-45** | Frontend UX | 1.「選擇照片」按鍵移除「相簿 / 檔案」副標籤字串 2.「拍照」按鍵移除「鏡頭拍攝」副標籤字串，主操作按鈕內部圖示與主文字水平居中排版 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 | **T-46** | Frontend UX & Cropper | 「選擇照片」彈窗排版優化：參考主畫面（ImagePreview）佈局，將「縮放」與「旋轉」按鍵由頂部移至照片下方、「裁切」按鍵正上方，頂部統一為單行置中之「裁切框尺寸」工具列 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 | **T-47** | Frontend UX | 移除主畫面（ImagePreview）底部工具列中「旋轉」與「縮放」的 reset 重設 (⟲) 按鍵，視覺控制群組更為簡潔專注 | [ImagePreview.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/ImagePreview.vue) | ✅ 已完成 |
+| **T-48** | Frontend UX | 加長縮放按鍵 (+、-) 寬度（min-width: 44px, padding: 5px 16px），統一主畫面與裁切彈窗之按鈕尺寸與觸控回饋 | [ImagePreview.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/ImagePreview.vue) / [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
+
 
 
 

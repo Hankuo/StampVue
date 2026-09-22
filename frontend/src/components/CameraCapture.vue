@@ -989,6 +989,9 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: 4px;
+  min-width: 44px;
+  padding: 5px 16px;
+  font-size: 0.85rem;
   font-weight: 700;
   background: #ffffff;
   border: 1px solid #cbd5e1;

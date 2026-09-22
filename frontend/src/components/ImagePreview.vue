@@ -559,11 +559,34 @@ onBeforeUnmount(() => {
   border-color: #94a3b8;
 }
 
+/* 縮放按鍵寬度加長與質感提升 */
+.zoom-group .tool-btn {
+  min-width: 44px;
+  padding: 5px 16px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  height: 32px;
+}
+
+.zoom-group .tool-btn:hover {
+  background: rgba(0, 101, 62, 0.08);
+  border-color: #00653e;
+  color: #00653e;
+}
+
 .zoom-val {
-  font-size: 0.725rem;
+  min-width: 48px;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--text-primary);
-  padding: 0 3px;
+  padding: 4px 8px;
+  background: #ffffff;
+  border-radius: var(--radius-sm);
+  border: 1px solid #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
 }
 
 /* 匯出動作按鈕 */
