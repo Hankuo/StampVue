@@ -77,6 +77,8 @@ gantt
 | **T-43** | Frontend UX & Cropper | 1.「選擇照片」彈窗中移除「照片縮放」字串標籤，維持 ＋/－/縮放比例居中 2. 實作照片拖曳平移 (Pan) 功能：支援滑鼠與觸控拖曳移動照片、滾輪縮放、裁切框指針事件穿透至底圖、精準映射與邊界安全鉗位計算 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 | **T-44** | Frontend UX & Cropper | 實作「選擇照片」中照片旋轉功能：增加 ↺ 90° (左轉) 與 ↻ 90° (右轉) 居中控制按鍵、CSS 即時平滑旋轉動畫、逆旋轉座標映射矩陣演算、Canvas 精準無損導出正向成果 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) / [index.html](file:///d:/AI%20Agent/StampVue/frontend/index.html) | ✅ 已完成 |
 | **T-45** | Frontend UX | 1.「選擇照片」按鍵移除「相簿 / 檔案」副標籤字串 2.「拍照」按鍵移除「鏡頭拍攝」副標籤字串，主操作按鈕內部圖示與主文字水平居中排版 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
+| **T-46** | Frontend UX & Cropper | 「選擇照片」彈窗排版優化：參考主畫面（ImagePreview）佈局，將「縮放」與「旋轉」按鍵由頂部移至照片下方、「裁切」按鍵正上方，頂部統一為單行置中之「裁切框尺寸」工具列 | [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
+
 
 
 

@@ -132,82 +132,34 @@
             <button class="close-btn" type="button" title="關閉" @click.stop="closeUploadCropper">✕</button>
           </div>
 
-          <!-- 尺寸與縮放工具列 (支援裁切框尺寸與照片縮放微調) -->
+          <!-- 裁切框尺寸快速調整 (居中排版，與拍照一致) -->
           <div class="crop-size-toolbar">
-            <!-- 1. 裁切框尺寸快速調整 (參考拍照排版) -->
-            <div class="toolbar-section">
-              <span class="toolbar-label">裁切框尺寸:</span>
-              <div class="size-btn-group">
-                <button
-                  type="button"
-                  class="size-btn"
-                  :class="{ active: Math.round(uploadCropSize) === 140 }"
-                  @click.stop="uploadCropSize = 140"
-                >
-                  小印 (140px)
-                </button>
-                <button
-                  type="button"
-                  class="size-btn"
-                  :class="{ active: Math.round(uploadCropSize) === 180 }"
-                  @click.stop="uploadCropSize = 180"
-                >
-                  標準 (180px)
-                </button>
-                <button
-                  type="button"
-                  class="size-btn"
-                  :class="{ active: Math.round(uploadCropSize) === 220 }"
-                  @click.stop="uploadCropSize = 220"
-                >
-                  大印 (220px)
-                </button>
-              </div>
-            </div>
-
-            <!-- 2. 照片視角縮放與旋轉按鍵 (＋、－、100% 與 ↺ 90°、↻ 90° 置中) -->
-            <div class="toolbar-section">
-              <div class="size-btn-group image-zoom-group">
-                <button
-                  type="button"
-                  class="size-btn step-btn"
-                  title="縮小照片視角 (-20%)"
-                  :disabled="uploadImageZoom <= 0.5"
-                  @click.stop="zoomUploadImage(-0.2)"
-                >
-                  －
-                </button>
-                <span class="zoom-indicator">{{ Math.round(uploadImageZoom * 100) }}%</span>
-                <button
-                  type="button"
-                  class="size-btn step-btn"
-                  title="放大照片視角 (+20%)"
-                  :disabled="uploadImageZoom >= 3.0"
-                  @click.stop="zoomUploadImage(0.2)"
-                >
-                  ＋
-                </button>
-              </div>
-
-              <!-- 旋轉控制按鍵 (向左 90° / 向右 90°) -->
-              <div class="size-btn-group image-rotate-group">
-                <button
-                  type="button"
-                  class="size-btn rotate-btn"
-                  title="向左旋轉 90 度"
-                  @click.stop="rotateUploadImage(-90)"
-                >
-                  <span class="rotate-icon">↺</span> 90°
-                </button>
-                <button
-                  type="button"
-                  class="size-btn rotate-btn"
-                  title="向右旋轉 90 度"
-                  @click.stop="rotateUploadImage(90)"
-                >
-                  <span class="rotate-icon">↻</span> 90°
-                </button>
-              </div>
+            <span class="toolbar-label">裁切框尺寸:</span>
+            <div class="size-btn-group">
+              <button
+                type="button"
+                class="size-btn"
+                :class="{ active: Math.round(uploadCropSize) === 140 }"
+                @click.stop="uploadCropSize = 140"
+              >
+                小印 (140px)
+              </button>
+              <button
+                type="button"
+                class="size-btn"
+                :class="{ active: Math.round(uploadCropSize) === 180 }"
+                @click.stop="uploadCropSize = 180"
+              >
+                標準 (180px)
+              </button>
+              <button
+                type="button"
+                class="size-btn"
+                :class="{ active: Math.round(uploadCropSize) === 220 }"
+                @click.stop="uploadCropSize = 220"
+              >
+                大印 (220px)
+              </button>
             </div>
           </div>
 
@@ -257,6 +209,52 @@
 
               <div class="crosshair-center"></div>
               <span class="guide-tag">🎯 將印章置於框內</span>
+            </div>
+          </div>
+
+          <!-- 旋轉與縮放工具列 (參考主畫面排版，置於裁切按鈕上方) -->
+          <div class="cropper-bottom-toolbar">
+            <!-- 旋轉控制按鍵 (向左 90° / 向右 90°) -->
+            <div class="rotation-group">
+              <button
+                type="button"
+                class="size-btn rotate-btn"
+                title="向左旋轉 90 度"
+                @click.stop="rotateUploadImage(-90)"
+              >
+                <span class="rotate-icon">↺</span> 90°
+              </button>
+              <button
+                type="button"
+                class="size-btn rotate-btn"
+                title="向右旋轉 90 度"
+                @click.stop="rotateUploadImage(90)"
+              >
+                <span class="rotate-icon">↻</span> 90°
+              </button>
+            </div>
+
+            <!-- 照片縮放控制按鍵 (－、100%、＋) -->
+            <div class="zoom-group">
+              <button
+                type="button"
+                class="size-btn step-btn"
+                title="縮小照片視角 (-20%)"
+                :disabled="uploadImageZoom <= 0.5"
+                @click.stop="zoomUploadImage(-0.2)"
+              >
+                －
+              </button>
+              <span class="zoom-indicator">{{ Math.round(uploadImageZoom * 100) }}%</span>
+              <button
+                type="button"
+                class="size-btn step-btn"
+                title="放大照片視角 (+20%)"
+                :disabled="uploadImageZoom >= 3.0"
+                @click.stop="zoomUploadImage(0.2)"
+              >
+                ＋
+              </button>
             </div>
           </div>
 
@@ -935,12 +933,33 @@ onBeforeUnmount(() => {
   width: 100%;
 }
 
-/* 選擇照片專用排版：雙行全寬置中對齊 */
-.upload-cropper-modal .crop-size-toolbar {
-  flex-direction: column;
+/* 選擇照片專用下方控制列：旋轉與縮放調校 (參考主畫面排版，置於裁切按鈕上方) */
+.cropper-bottom-toolbar {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px 14px;
+  background: #f8fafc;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  width: 100%;
+}
+
+.cropper-bottom-toolbar .rotation-group,
+.cropper-bottom-toolbar .zoom-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .cropper-bottom-toolbar {
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 10px;
+  }
 }
 
 .live-camera-modal .toolbar-section {
