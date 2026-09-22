@@ -167,9 +167,8 @@
               </div>
             </div>
 
-            <!-- 2. 照片視角縮放按鍵 (＋、－、100% 置中，移除重設) -->
+            <!-- 2. 照片視角縮放按鍵 (＋、－、100% 置中) -->
             <div class="toolbar-section">
-              <span class="toolbar-label">照片縮放:</span>
               <div class="size-btn-group image-zoom-group">
                 <button
                   type="button"
@@ -194,12 +193,14 @@
             </div>
           </div>
 
-          <!-- 圖片容器與可拖曳紅框 (支援四角與邊框等比正方形縮放) -->
+          <!-- 圖片容器與裁切取景 (照片可拖曳移動，紅框支援四角與邊框等比正方形縮放) -->
           <div
             ref="uploadContainerRef"
             class="video-container upload-crop-stage"
-            @mousedown="startCropDrag"
-            @touchstart="startCropDrag"
+            :class="{ 'is-dragging': isDraggingPhoto }"
+            @mousedown="startPhotoDrag"
+            @touchstart="startPhotoDrag"
+            @wheel.prevent="onStageWheel"
           >
             <img
               ref="uploadImgRef"
@@ -207,8 +208,8 @@
               alt="待裁切照片"
               class="upload-crop-img"
               :style="{
-                transform: `scale(${uploadImageZoom})`,
-                transition: 'transform 0.15s ease'
+                transform: `translate(${uploadImagePos.x}px, ${uploadImagePos.y}px) scale(${uploadImageZoom})`,
+                transition: isDraggingPhoto ? 'none' : 'transform 0.15s ease'
               }"
               draggable="false"
             />
@@ -220,8 +221,6 @@
                 height: `${uploadCropSize}px`,
                 transform: `translate(calc(-50% + ${uploadCropPos.x}px), calc(-50% + ${uploadCropPos.y}px))`
               }"
-              @mousedown.stop="startCropDrag"
-              @touchstart.stop="startCropDrag"
             >
               <!-- 移至取景框上方之引導提示 -->
               <span class="crop-guide-tip">依紅框精準裁切</span>
@@ -291,6 +290,8 @@ const rawUploadDataUrl = ref<string>('');
 const uploadCropSize = ref<number>(180);
 const uploadCropPos = ref<{ x: number; y: number }>({ x: 0, y: 0 });
 const uploadImageZoom = ref<number>(1);
+const uploadImagePos = ref<{ x: number; y: number }>({ x: 0, y: 0 });
+const isDraggingPhoto = ref<boolean>(false);
 const uploadContainerRef = ref<HTMLDivElement | null>(null);
 const uploadImgRef = ref<HTMLImageElement | null>(null);
 const uploadCropBoxRef = ref<HTMLDivElement | null>(null);
@@ -307,11 +308,57 @@ const resetUploadImageZoom = () => {
   uploadImageZoom.value = 1;
 };
 
-let isDraggingUploadCrop = false;
-let dragStartX = 0;
-let dragStartY = 0;
-let initialCropX = 0;
-let initialCropY = 0;
+// 照片拖曳移動 (Pan) 狀態與事件
+let photoDragStartX = 0;
+let photoDragStartY = 0;
+let photoInitialPosX = 0;
+let photoInitialPosY = 0;
+
+const startPhotoDrag = (e: MouseEvent | TouchEvent) => {
+  if (isResizingCrop) return;
+  if ('button' in e && e.button !== 0) return;
+  isDraggingPhoto.value = true;
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  photoDragStartX = clientX;
+  photoDragStartY = clientY;
+  photoInitialPosX = uploadImagePos.value.x;
+  photoInitialPosY = uploadImagePos.value.y;
+
+  window.addEventListener('mousemove', onPhotoDragMove);
+  window.addEventListener('mouseup', stopPhotoDrag);
+  window.addEventListener('touchmove', onPhotoDragMove, { passive: false });
+  window.addEventListener('touchend', stopPhotoDrag);
+  window.addEventListener('touchcancel', stopPhotoDrag);
+};
+
+const onPhotoDragMove = (e: MouseEvent | TouchEvent) => {
+  if (!isDraggingPhoto.value) return;
+  if ('touches' in e && e.cancelable) e.preventDefault();
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  const dx = clientX - photoDragStartX;
+  const dy = clientY - photoDragStartY;
+
+  uploadImagePos.value = {
+    x: Math.round(photoInitialPosX + dx),
+    y: Math.round(photoInitialPosY + dy)
+  };
+};
+
+const stopPhotoDrag = () => {
+  isDraggingPhoto.value = false;
+  window.removeEventListener('mousemove', onPhotoDragMove);
+  window.removeEventListener('mouseup', stopPhotoDrag);
+  window.removeEventListener('touchmove', onPhotoDragMove);
+  window.removeEventListener('touchend', stopPhotoDrag);
+  window.removeEventListener('touchcancel', stopPhotoDrag);
+};
+
+const onStageWheel = (e: WheelEvent) => {
+  const delta = e.deltaY < 0 ? 0.15 : -0.15;
+  zoomUploadImage(delta);
+};
 
 type ResizeHandle = 'tl' | 'tr' | 'bl' | 'br' | 't' | 'b' | 'l' | 'r';
 let isResizingCrop = false;
@@ -321,44 +368,6 @@ let resizeStartY = 0;
 let resizeInitialSize = 180;
 let resizeInitialPosX = 0;
 let resizeInitialPosY = 0;
-
-const startCropDrag = (e: MouseEvent | TouchEvent) => {
-  if (isResizingCrop) return;
-  isDraggingUploadCrop = true;
-  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-  dragStartX = clientX;
-  dragStartY = clientY;
-  initialCropX = uploadCropPos.value.x;
-  initialCropY = uploadCropPos.value.y;
-
-  window.addEventListener('mousemove', onCropDragMove);
-  window.addEventListener('mouseup', stopCropDrag);
-  window.addEventListener('touchmove', onCropDragMove, { passive: false });
-  window.addEventListener('touchend', stopCropDrag);
-};
-
-const onCropDragMove = (e: MouseEvent | TouchEvent) => {
-  if (!isDraggingUploadCrop) return;
-  if ('touches' in e) e.preventDefault();
-  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-  const dx = clientX - dragStartX;
-  const dy = clientY - dragStartY;
-
-  uploadCropPos.value = {
-    x: initialCropX + dx,
-    y: initialCropY + dy
-  };
-};
-
-const stopCropDrag = () => {
-  isDraggingUploadCrop = false;
-  window.removeEventListener('mousemove', onCropDragMove);
-  window.removeEventListener('mouseup', stopCropDrag);
-  window.removeEventListener('touchmove', onCropDragMove);
-  window.removeEventListener('touchend', stopCropDrag);
-};
 
 const startResizeDrag = (e: MouseEvent | TouchEvent, handle: ResizeHandle) => {
   e.stopPropagation();
@@ -479,15 +488,24 @@ const confirmUploadCrop = () => {
   const relX = boxRect.left - imgRect.left;
   const relY = boxRect.top - imgRect.top;
 
-  let cropX = relX * scaleX;
-  let cropY = relY * scaleY;
-  let cropW = boxRect.width * scaleX;
-  let cropH = boxRect.height * scaleY;
+  const rawCropX = relX * scaleX;
+  const rawCropY = relY * scaleY;
+  const rawCropW = boxRect.width * scaleX;
+  const rawCropH = boxRect.height * scaleY;
 
-  cropX = Math.max(0, Math.min(natW - 1, cropX));
-  cropY = Math.max(0, Math.min(natH - 1, cropY));
+  // 鉗位以避免超出照片邊界造成繪製異常
+  let cropX = Math.max(0, rawCropX);
+  let cropY = Math.max(0, rawCropY);
+  let cropW = rawCropW - (cropX - rawCropX);
+  let cropH = rawCropH - (cropY - rawCropY);
+
   cropW = Math.max(10, Math.min(cropW, natW - cropX));
   cropH = Math.max(10, Math.min(cropH, natH - cropY));
+
+  if (cropW <= 0 || cropH <= 0 || cropX >= natW || cropY >= natH) {
+    alert('裁切範圍超出照片，請將照片拖曳至紅框內。');
+    return;
+  }
 
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(cropW);
@@ -517,7 +535,9 @@ const closeUploadCropper = () => {
   isUploadCropperOpen.value = false;
   rawUploadDataUrl.value = '';
   uploadImageZoom.value = 1;
-  stopCropDrag();
+  uploadImagePos.value = { x: 0, y: 0 };
+  uploadCropPos.value = { x: 0, y: 0 };
+  stopPhotoDrag();
   stopResizeDrag();
 };
 
@@ -547,6 +567,7 @@ const readFile = (file: File) => {
       uploadCropPos.value = { x: 0, y: 0 };
       uploadCropSize.value = 180;
       uploadImageZoom.value = 1;
+      uploadImagePos.value = { x: 0, y: 0 };
       isUploadCropperOpen.value = true;
     }
   };
@@ -1170,8 +1191,9 @@ onBeforeUnmount(() => {
   touch-action: none;
 }
 
-.upload-crop-stage:active {
-  cursor: grabbing;
+.upload-crop-stage:active,
+.upload-crop-stage.is-dragging {
+  cursor: grabbing !important;
 }
 
 .upload-crop-img {
@@ -1188,8 +1210,7 @@ onBeforeUnmount(() => {
 .upload-draggable-box {
   max-width: none !important;
   max-height: none !important;
-  pointer-events: auto !important;
-  cursor: move;
+  pointer-events: none !important;
   user-select: none;
   touch-action: none;
 }
