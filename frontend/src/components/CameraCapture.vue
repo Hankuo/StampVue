@@ -34,7 +34,6 @@
           </div>
           <div class="btn-text-wrap">
             <span class="btn-title-main">選擇照片</span>
-            <span class="btn-sub-label">相簿 / 檔案</span>
           </div>
         </button>
 
@@ -53,7 +52,6 @@
           </div>
           <div class="btn-text-wrap">
             <span class="btn-title-main">拍照</span>
-            <span class="btn-sub-label">鏡頭拍攝</span>
           </div>
         </button>
       </div>
@@ -740,6 +738,7 @@ onBeforeUnmount(() => {
 .source-hero-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   padding: 10px 12px;
   border-radius: var(--radius-md);
