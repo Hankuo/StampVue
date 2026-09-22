@@ -151,7 +151,7 @@
     <div class="export-actions-row">
       <button class="btn btn-primary btn-download" :disabled="!result" @click="downloadPng">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <span>下載透明 PNG (無損 32-bit)</span>
+        <span>下載</span>
       </button>
     </div>
   </div>
@@ -514,8 +514,8 @@ onBeforeUnmount(() => {
 .preview-controls-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 8px 10px;
+  gap: 12px;
+  padding: 10px 14px;
   background: #f8fafc;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -544,21 +544,21 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding-top: 8px;
+  gap: 20px;
+  padding-top: 10px;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .param-slider-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex: 1;
 }
 
 .param-label {
-  font-size: 0.775rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
 }
@@ -566,20 +566,20 @@ onBeforeUnmount(() => {
 .param-slider {
   flex: 1;
   min-width: 60px;
-  height: 5px;
+  height: 6px;
   accent-color: #00653e;
   cursor: pointer;
 }
 
 .param-badge {
-  font-size: 0.725rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #00653e;
   background: rgba(0, 101, 62, 0.08);
   border: 1px solid rgba(0, 101, 62, 0.22);
-  padding: 1px 6px;
+  padding: 2px 8px;
   border-radius: var(--radius-sm);
-  min-width: 36px;
+  min-width: 40px;
   text-align: center;
   white-space: nowrap;
 }
@@ -588,22 +588,26 @@ onBeforeUnmount(() => {
   background: rgba(0, 101, 62, 0.08);
   border: 1px solid rgba(0, 101, 62, 0.28);
   color: #00653e;
-  font-size: 0.75rem;
+  font-size: 0.825rem;
   font-weight: 700;
-  padding: 4px 10px;
+  height: 32px;
+  padding: 0 14px;
   border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   cursor: pointer;
   white-space: nowrap;
   transition: all var(--transition-fast);
+  box-shadow: 0 1px 3px rgba(0, 101, 62, 0.08);
 }
 
 .param-reset-btn:hover {
   background: #00653e;
   color: #ffffff;
   border-color: #00653e;
+  box-shadow: 0 3px 10px rgba(0, 101, 62, 0.25);
+  transform: translateY(-1px);
 }
 
 .param-reset-btn:active {
@@ -730,6 +734,7 @@ onBeforeUnmount(() => {
 .export-actions-row {
   display: flex;
   width: 100%;
+  margin-top: 14px;
 }
 
 .btn-download {
@@ -808,15 +813,17 @@ onBeforeUnmount(() => {
 
   .preview-params-toolbar {
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
   }
 
   .param-slider-group {
     flex: 1 1 100%;
+    gap: 10px;
   }
 
   .param-reset-btn {
     width: 100%;
+    height: 32px;
     justify-content: center;
   }
 }
