@@ -1,6 +1,6 @@
 <template>
   <div class="stampvue-workbench-root">
-    <div class="workbench-grid">
+    <div class="workbench-layout">
       <!-- 1. 影像來源 (上傳/拍攝) -->
       <div class="source-slot">
         <CameraCapture
@@ -10,15 +10,7 @@
         />
       </div>
 
-      <!-- 2. 去背微調控制板 -->
-      <div class="controls-slot">
-        <StampControls
-          v-model="stampOptions"
-          @change="triggerProcessing"
-        />
-      </div>
-
-      <!-- 3. 大圖預覽與匯出操作 (Hero Canvas) -->
+      <!-- 2. 大圖預覽、微調控制與匯出操作 (Hero Canvas & Integrated Controls) -->
       <div class="preview-slot">
         <ImagePreview
           :original-image-url="originalImageUrl"
@@ -28,6 +20,8 @@
           @update:rotation="handleRotationChange"
           @rotate="handleRotationChange"
           @update:color-mode="handleColorModeChange"
+          @update:options="handleOptionsChange"
+          @change-options="handleOptionsChange"
           @export="handleExport"
         />
       </div>
@@ -38,7 +32,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import CameraCapture from './CameraCapture.vue';
-import StampControls from './StampControls.vue';
 import ImagePreview from './ImagePreview.vue';
 import { StampProcessor } from '../utils/stampProcessor';
 import type { StampOptions, ProcessedStampResult } from '../types/stamp';
@@ -122,6 +115,11 @@ const handleRotationChange = (angle: number) => {
   triggerProcessing();
 };
 
+const handleOptionsChange = (nextOptions: StampOptions) => {
+  stampOptions.value = { ...nextOptions };
+  triggerProcessing();
+};
+
 const handleColorModeChange = (mode: 'red' | 'blue') => {
   userManuallySelectedColor = true;
   stampOptions.value.colorMode = mode;
@@ -177,37 +175,24 @@ onMounted(() => {
   width: 100%;
 }
 
-.workbench-grid {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  grid-template-rows: auto 1fr;
-  grid-template-areas:
-    "source  preview"
-    "controls preview";
+.workbench-layout {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  align-items: start;
+  max-width: 860px;
+  margin: 0 auto;
 }
 
 .source-slot {
-  grid-area: source;
-}
-
-.controls-slot {
-  grid-area: controls;
+  width: 100%;
 }
 
 .preview-slot {
-  grid-area: preview;
+  width: 100%;
 }
 
-/* Responsive Studio Layout */
-@media (max-width: 1024px) {
-  .workbench-grid {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "source"
-      "preview"
-      "controls";
+@media (max-width: 640px) {
+  .workbench-layout {
     gap: 8px;
   }
 }

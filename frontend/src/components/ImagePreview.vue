@@ -77,40 +77,77 @@
       </div>
     </div>
 
-    <!-- 預覽最下方控制列：旋轉功能（可直接輸入角度，無 Label）與縮放調校 -->
-    <div v-if="originalImageUrl" class="preview-bottom-toolbar">
-      <!-- 旋轉控制群組 (可輸入角度) -->
-      <div class="rotation-group">
-        <button type="button" class="tool-btn rotate-btn" title="向左旋轉 90 度" @click="rotateBy(-90)">
-          <span class="rotate-icon">↺</span>
-          <span>90°</span>
-        </button>
-        <div class="angle-input-box" title="直接輸入旋轉角度 (0° ~ 360°)">
-          <input
-            type="number"
-            min="0"
-            max="360"
-            :value="currentOptions.rotation || 0"
-            class="angle-num-input"
-            @input="onAngleInput"
-          />
-          <span class="deg-sym">°</span>
+    <!-- 預覽下方控制區塊：縮放、旋轉與去背參數 (陰影抑制、去背強度) -->
+    <div v-if="originalImageUrl" class="preview-controls-block">
+      <!-- 旋轉控制與縮放控制列 (固定單行不換行) -->
+      <div class="preview-bottom-toolbar">
+        <!-- 旋轉控制群組 (可輸入角度) -->
+        <div class="rotation-group">
+          <button type="button" class="tool-btn rotate-btn" title="向左旋轉 90 度" @click="rotateBy(-90)">
+            <span class="rotate-icon">↺</span>
+            <span>90°</span>
+          </button>
+          <div class="angle-input-box" title="直接輸入旋轉角度 (0° ~ 360°)">
+            <input
+              type="number"
+              min="0"
+              max="360"
+              :value="currentOptions.rotation || 0"
+              class="angle-num-input"
+              @input="onAngleInput"
+            />
+            <span class="deg-sym">°</span>
+          </div>
+          <button type="button" class="tool-btn rotate-btn" title="向右旋轉 90 度" @click="rotateBy(90)">
+            <span class="rotate-icon">↻</span>
+            <span>90°</span>
+          </button>
         </div>
-        <button type="button" class="tool-btn rotate-btn" title="向右旋轉 90 度" @click="rotateBy(90)">
-          <span class="rotate-icon">↻</span>
-          <span>90°</span>
-        </button>
+
+        <!-- 縮放控制群組 (高度維持原樣，固定單行) -->
+        <div class="zoom-group">
+          <button class="tool-btn" @click="zoomOut" title="縮小">－</button>
+          <span class="zoom-val">{{ Math.round(zoomScale * 100) }}%</span>
+          <button class="tool-btn" @click="zoomIn" title="放大">＋</button>
+        </div>
       </div>
 
-      <!-- 縮放控制群組 -->
-      <div class="zoom-group">
-        <button class="tool-btn" @click="zoomOut" title="縮小">－</button>
-        <span class="zoom-val">{{ Math.round(zoomScale * 100) }}%</span>
-        <button class="tool-btn" @click="zoomIn" title="放大">＋</button>
+      <!-- 去背微調滑桿區塊：陰影抑制 與 去背強度 (無 icon，無「去背參數」字串，移至縮放控制區塊) -->
+      <div class="preview-params-toolbar">
+        <div class="param-slider-group">
+          <span class="param-label" title="強化對紙面暗部與冷色陰影的濾除能力">陰影抑制</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            :value="currentOptions.shadowSuppression"
+            class="param-slider"
+            @input="onShadowChange"
+          />
+          <span class="param-badge">{{ currentOptions.shadowSuppression }}%</span>
+        </div>
+
+        <div class="param-slider-group">
+          <span class="param-label" title="去背判斷強度：數值越高去背越強，數值越低保留越多淡印細節">去背強度</span>
+          <input
+            type="range"
+            min="0"
+            max="80"
+            :value="currentOptions.threshold"
+            class="param-slider"
+            @input="onThresholdChange"
+          />
+          <span class="param-badge">{{ currentOptions.threshold }}%</span>
+        </div>
+
+        <button type="button" class="param-reset-btn" title="重設去背參數為預設值" @click="resetParams">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <span>重設</span>
+        </button>
       </div>
     </div>
 
-    <!-- 底部下載主行動列 -->
+    <!-- 底部下載主行動列 (移至最下面) -->
     <div class="export-actions-row">
       <button class="btn btn-primary btn-download" :disabled="!result" @click="downloadPng">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -142,6 +179,8 @@ const emit = defineEmits<{
   (e: 'rotate', angle: number): void;
   (e: 'update:colorMode', mode: 'red' | 'blue'): void;
   (e: 'update:color-mode', mode: 'red' | 'blue'): void;
+  (e: 'update:options', options: StampOptions): void;
+  (e: 'change-options', options: StampOptions): void;
   (e: 'export', result: ProcessedStampResult): void;
 }>();
 
@@ -181,6 +220,33 @@ const onColorChange = (e: Event) => {
   const mode = target.value as 'red' | 'blue';
   emit('update:colorMode', mode);
   emit('update:color-mode', mode);
+};
+
+const onShadowChange = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  const val = Number(target.value);
+  const next: StampOptions = { ...props.currentOptions, shadowSuppression: val };
+  emit('update:options', next);
+  emit('change-options', next);
+};
+
+const onThresholdChange = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  const val = Number(target.value);
+  const next: StampOptions = { ...props.currentOptions, threshold: val };
+  emit('update:options', next);
+  emit('change-options', next);
+};
+
+const resetParams = () => {
+  const isBlue = props.currentOptions.colorMode === 'blue';
+  const next: StampOptions = {
+    ...props.currentOptions,
+    shadowSuppression: isBlue ? 35 : 40,
+    threshold: isBlue ? 20 : 40
+  };
+  emit('update:options', next);
+  emit('change-options', next);
 };
 
 // 預覽保留棋盤透明底色與純去背顯示
@@ -444,17 +510,24 @@ onBeforeUnmount(() => {
 .tag-left { left: 8px; background: rgba(0, 0, 0, 0.7); color: white; }
 .tag-right { right: 8px; background: rgba(239, 68, 68, 0.85); color: white; }
 
-/* 預覽最下方控制列 (旋轉與縮放，無 Label，可輸入角度，固定單行不換行) */
+/* 預覽下方控制區塊 (包含旋轉、縮放與微調滑桿) */
+.preview-controls-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #f8fafc;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+/* 預覽控制列 (旋轉與縮放，無 Label，可輸入角度，固定單行不換行) */
 .preview-bottom-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: nowrap;
   gap: 8px;
-  padding: 6px 10px;
-  background: #f8fafc;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
   white-space: nowrap;
 }
 
@@ -464,6 +537,77 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
+}
+
+/* 參數微調列：陰影抑制與去背強度 (在縮放控制區塊內) */
+.preview-params-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.param-slider-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.param-label {
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.param-slider {
+  flex: 1;
+  min-width: 60px;
+  height: 5px;
+  accent-color: #00653e;
+  cursor: pointer;
+}
+
+.param-badge {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #00653e;
+  background: rgba(0, 101, 62, 0.08);
+  border: 1px solid rgba(0, 101, 62, 0.22);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  min-width: 36px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.param-reset-btn {
+  background: rgba(0, 101, 62, 0.08);
+  border: 1px solid rgba(0, 101, 62, 0.28);
+  color: #00653e;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.param-reset-btn:hover {
+  background: #00653e;
+  color: #ffffff;
+  border-color: #00653e;
+}
+
+.param-reset-btn:active {
+  transform: translateY(0);
 }
 
 /* 調大旋轉按鍵 (Rotate Buttons) */
@@ -660,6 +804,20 @@ onBeforeUnmount(() => {
   .btn-download {
     padding: 9px 12px;
     font-size: 0.875rem;
+  }
+
+  .preview-params-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .param-slider-group {
+    flex: 1 1 100%;
+  }
+
+  .param-reset-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>

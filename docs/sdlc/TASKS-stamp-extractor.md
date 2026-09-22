@@ -81,6 +81,7 @@ gantt
 | **T-47** | Frontend UX | 移除主畫面（ImagePreview）底部工具列中「旋轉」與「縮放」的 reset 重設 (⟲) 按鍵，視覺控制群組更為簡潔專注 | [ImagePreview.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/ImagePreview.vue) | ✅ 已完成 |
 | **T-48** | Frontend UX | 加長縮放按鍵 (+、-) 寬度（min-width: 44px, padding: 5px 16px），統一主畫面與裁切彈窗之按鈕尺寸與觸控回饋 | [ImagePreview.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/ImagePreview.vue) / [CameraCapture.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/CameraCapture.vue) | ✅ 已完成 |
 | **T-49** | Frontend UX | 主畫面底部工具列排版控制：維持縮放按鈕原緊湊高度不垂直拉伸，強制單行固定不換行 (flex-wrap: nowrap; flex-shrink: 0) | [ImagePreview.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/ImagePreview.vue) | ✅ 已完成 |
+| **T-50** | Frontend UX & Layout | 1. 移除「去背參數」、「陰影抑制」、「去背強度」的 icon（🎛️、🛡️、⚖️） 2. 移除「去背參數」字串標題 3. 將「陰影抑制」與「去背強度」滑桿整合進主畫面縮放控制區塊中，「下載透明PNG」按鍵配置於最下方 | [ImagePreview.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/ImagePreview.vue) / [StampControls.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/StampControls.vue) / [StampWorkbench.vue](file:///d:/AI%20Agent/StampVue/frontend/src/components/StampWorkbench.vue) | ✅ 已完成 |
 
 
 

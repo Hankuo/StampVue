@@ -1,23 +1,20 @@
 <template>
   <div class="controls-card glass-panel">
-    <!-- 頂部標題與快速重設列 -->
+    <!-- 頂部快速重設列 (無「去背參數」字串與 icon) -->
     <div class="controls-header">
-      <div class="title-wrap">
-        <span class="step-icon">🎛️</span>
-        <h3>去背參數</h3>
-      </div>
+      <div class="header-spacer"></div>
       <button class="reset-btn" title="重設為預設值" @click="resetDefaults">
         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
         重設
       </button>
     </div>
 
-    <!-- 核心精簡滑桿區 (高密度緊湊排版) -->
+    <!-- 核心精簡滑桿區 (高密度緊湊排版，無 icon) -->
     <div class="sliders-list">
       <!-- 陰影抑制力 -->
       <div class="slider-row">
         <div class="slider-meta">
-          <span class="label-text" title="強化對紙面暗部與冷色陰影的濾除能力 (建議 30~50%，設為 0% 關閉抑制)">🛡️ 陰影抑制</span>
+          <span class="label-text" title="強化對紙面暗部與冷色陰影的濾除能力 (建議 30~50%，設為 0% 關閉抑制)">陰影抑制</span>
           <span class="slider-val">{{ currentVal.shadowSuppression }}%</span>
         </div>
         <div class="slider-input-wrapper">
@@ -34,7 +31,7 @@
       <!-- 去背強度 -->
       <div class="slider-row">
         <div class="slider-meta">
-          <span class="label-text" title="去背判斷強度：數值越高去背越強，可消除頑固背景；數值越低保留越多淡印細節">⚖️ 去背強度</span>
+          <span class="label-text" title="去背判斷強度：數值越高去背越強，可消除頑固背景；數值越低保留越多淡印細節">去背強度</span>
           <span class="slider-val">{{ currentVal.threshold }}%</span>
         </div>
         <div class="slider-input-wrapper">
