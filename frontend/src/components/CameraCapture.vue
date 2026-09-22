@@ -167,7 +167,7 @@
               </div>
             </div>
 
-            <!-- 2. 照片視角縮放按鍵 (＋、－、100% 置中) -->
+            <!-- 2. 照片視角縮放與旋轉按鍵 (＋、－、100% 與 ↺ 90°、↻ 90° 置中) -->
             <div class="toolbar-section">
               <div class="size-btn-group image-zoom-group">
                 <button
@@ -190,10 +190,30 @@
                   ＋
                 </button>
               </div>
+
+              <!-- 旋轉控制按鍵 (向左 90° / 向右 90°) -->
+              <div class="size-btn-group image-rotate-group">
+                <button
+                  type="button"
+                  class="size-btn rotate-btn"
+                  title="向左旋轉 90 度"
+                  @click.stop="rotateUploadImage(-90)"
+                >
+                  <span class="rotate-icon">↺</span> 90°
+                </button>
+                <button
+                  type="button"
+                  class="size-btn rotate-btn"
+                  title="向右旋轉 90 度"
+                  @click.stop="rotateUploadImage(90)"
+                >
+                  <span class="rotate-icon">↻</span> 90°
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- 圖片容器與裁切取景 (照片可拖曳移動，紅框支援四角與邊框等比正方形縮放) -->
+          <!-- 圖片容器與裁切取景 (照片可拖曳移動與旋轉，紅框支援四角與邊框等比正方形縮放) -->
           <div
             ref="uploadContainerRef"
             class="video-container upload-crop-stage"
@@ -208,8 +228,8 @@
               alt="待裁切照片"
               class="upload-crop-img"
               :style="{
-                transform: `translate(${uploadImagePos.x}px, ${uploadImagePos.y}px) scale(${uploadImageZoom})`,
-                transition: isDraggingPhoto ? 'none' : 'transform 0.15s ease'
+                transform: `translate(${uploadImagePos.x}px, ${uploadImagePos.y}px) rotate(${uploadImageRotation}deg) scale(${uploadImageZoom})`,
+                transition: isDraggingPhoto ? 'none' : 'transform 0.2s ease'
               }"
               draggable="false"
             />
@@ -291,6 +311,7 @@ const uploadCropSize = ref<number>(180);
 const uploadCropPos = ref<{ x: number; y: number }>({ x: 0, y: 0 });
 const uploadImageZoom = ref<number>(1);
 const uploadImagePos = ref<{ x: number; y: number }>({ x: 0, y: 0 });
+const uploadImageRotation = ref<number>(0);
 const isDraggingPhoto = ref<boolean>(false);
 const uploadContainerRef = ref<HTMLDivElement | null>(null);
 const uploadImgRef = ref<HTMLImageElement | null>(null);
@@ -306,6 +327,10 @@ const zoomUploadImage = (delta: number) => {
 
 const resetUploadImageZoom = () => {
   uploadImageZoom.value = 1;
+};
+
+const rotateUploadImage = (deltaDeg: number) => {
+  uploadImageRotation.value = (uploadImageRotation.value + deltaDeg) % 360;
 };
 
 // 照片拖曳移動 (Pan) 狀態與事件
@@ -477,52 +502,47 @@ const confirmUploadCrop = () => {
   const natW = img.naturalWidth;
   const natH = img.naturalHeight;
 
-  if (imgRect.width === 0 || imgRect.height === 0 || natW === 0 || natH === 0) {
+  if (imgRect.width === 0 || imgRect.height === 0 || boxRect.width === 0 || boxRect.height === 0 || natW === 0 || natH === 0) {
     closeUploadCropper();
     return;
   }
 
-  const scaleX = natW / imgRect.width;
-  const scaleY = natH / imgRect.height;
+  // 取得旋轉角度 (正規化為 0, 90, 180, 270 度)
+  const rotDeg = ((uploadImageRotation.value % 360) + 360) % 360;
+  const rotRad = (rotDeg * Math.PI) / 180;
 
-  const relX = boxRect.left - imgRect.left;
-  const relY = boxRect.top - imgRect.top;
+  // 計算照片中心與裁切框中心 (螢幕座標)
+  const imgCenterX = (imgRect.left + imgRect.right) / 2;
+  const imgCenterY = (imgRect.top + imgRect.bottom) / 2;
+  const boxCenterX = (boxRect.left + boxRect.right) / 2;
+  const boxCenterY = (boxRect.top + boxRect.bottom) / 2;
 
-  const rawCropX = relX * scaleX;
-  const rawCropY = relY * scaleY;
-  const rawCropW = boxRect.width * scaleX;
-  const rawCropH = boxRect.height * scaleY;
+  const deltaScreenX = boxCenterX - imgCenterX;
+  const deltaScreenY = boxCenterY - imgCenterY;
 
-  // 鉗位以避免超出照片邊界造成繪製異常
-  let cropX = Math.max(0, rawCropX);
-  let cropY = Math.max(0, rawCropY);
-  let cropW = rawCropW - (cropX - rawCropX);
-  let cropH = rawCropH - (cropY - rawCropY);
+  // 於 90° 或 270° 時，原圖寬度對應螢幕高度；於 0° 或 180° 時對應螢幕寬度
+  const renderedW = (rotDeg === 90 || rotDeg === 270) ? imgRect.height : imgRect.width;
+  const pixelScale = natW / renderedW;
 
-  cropW = Math.max(10, Math.min(cropW, natW - cropX));
-  cropH = Math.max(10, Math.min(cropH, natH - cropY));
+  // 經由逆旋轉矩陣 (-rotRad) 將螢幕相對位移精準映射回原圖天然座標軸
+  const natDeltaX = (deltaScreenX * Math.cos(-rotRad) - deltaScreenY * Math.sin(-rotRad)) * pixelScale;
+  const natDeltaY = (deltaScreenX * Math.sin(-rotRad) + deltaScreenY * Math.cos(-rotRad)) * pixelScale;
 
-  if (cropW <= 0 || cropH <= 0 || cropX >= natW || cropY >= natH) {
-    alert('裁切範圍超出照片，請將照片拖曳至紅框內。');
-    return;
-  }
+  const natCenterX = natW / 2 + natDeltaX;
+  const natCenterY = natH / 2 + natDeltaY;
+
+  const cropSizeInNat = Math.max(10, Math.round(boxRect.width * pixelScale));
 
   const canvas = document.createElement('canvas');
-  canvas.width = Math.round(cropW);
-  canvas.height = Math.round(cropH);
+  canvas.width = cropSizeInNat;
+  canvas.height = cropSizeInNat;
   const ctx = canvas.getContext('2d');
   if (ctx) {
-    ctx.drawImage(
-      img,
-      cropX,
-      cropY,
-      cropW,
-      cropH,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
+    // 移至畫布中心，依使用者視覺旋轉角度繪製，並將天然中心置於畫布正中
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(rotRad);
+    ctx.drawImage(img, -natCenterX, -natCenterY);
+
     const croppedDataUrl = canvas.toDataURL('image/png');
     closeUploadCropper();
     emitImageLoaded(croppedDataUrl, 'upload');
@@ -535,6 +555,7 @@ const closeUploadCropper = () => {
   isUploadCropperOpen.value = false;
   rawUploadDataUrl.value = '';
   uploadImageZoom.value = 1;
+  uploadImageRotation.value = 0;
   uploadImagePos.value = { x: 0, y: 0 };
   uploadCropPos.value = { x: 0, y: 0 };
   stopPhotoDrag();
@@ -567,6 +588,7 @@ const readFile = (file: File) => {
       uploadCropPos.value = { x: 0, y: 0 };
       uploadCropSize.value = 180;
       uploadImageZoom.value = 1;
+      uploadImageRotation.value = 0;
       uploadImagePos.value = { x: 0, y: 0 };
       isUploadCropperOpen.value = true;
     }
@@ -964,6 +986,33 @@ onBeforeUnmount(() => {
 .live-camera-modal .step-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
+}
+
+.live-camera-modal .rotate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: 700;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: var(--text-primary);
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.live-camera-modal .rotate-btn:hover {
+  background: rgba(0, 101, 62, 0.08);
+  border-color: #00653e;
+  color: #00653e;
+}
+
+.live-camera-modal .rotate-icon {
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .live-camera-modal .zoom-indicator {
