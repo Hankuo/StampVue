@@ -23,6 +23,8 @@ export {
   isChromiumBased,
   canPromptNativeInstall,
   promptNativeInstall,
+  checkInstalledInBrowser,
+  hasInstalledHistory,
   downloadWindowsShortcut,
   onPwaStateChange
 } from './utils/pwaInstall';

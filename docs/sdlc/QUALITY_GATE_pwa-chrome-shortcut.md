@@ -36,6 +36,7 @@
 - [x] **AC-01 (Chrome 原生一鍵安裝)**: 實作 `beforeinstallprompt` 監聽與 `prompt()` 觸發，一鍵彈出安裝對話框。
 - [x] **AC-02 (Standalone 獨立視窗檢測)**: 自動判斷已安裝獨立視窗狀態，並自動調整 UI 呈現。
 - [x] **AC-03 (備選下載與教學彈窗)**: `InstallShortcutModal.vue` 提供一鍵下載 Windows `.url` 檔案與 Chrome 手動指引。
+- [x] **AC-04 (捷徑移除與重複安裝自適應)**: 整合 `checkInstalledInBrowser` 與 `InstallShortcutModal` 提示橫幅，智慧切換按鈕狀態為「重新建立桌面捷徑」，解除使用者的操作疑惑。
 
 ---
 

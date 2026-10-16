@@ -24,3 +24,9 @@
 - [x] **Task 4.1**: 執行 `npm run typecheck` 與 `npm run build` 確認零錯誤
 - [x] **Task 4.2**: 驗證 Service Worker、Manifest 及點擊互動
 - [x] **Task 4.3**: 完成 QUALITY_GATE 報告與文檔交付
+
+### Phase 5: 捷徑移除後自適應還原優化
+- [x] **Task 5.1**: 於 `pwaInstall.ts` 擴充 `checkInstalledInBrowser()`，支援 `navigator.getInstalledRelatedApps()` 及已安裝快取紀錄
+- [x] **Task 5.2**: 升級 `InstallShortcutModal.vue`，加入「桌面捷徑不見了？立即找回」情境辨識與清晰操作說明
+- [x] **Task 5.3**: 升級 `InstallShortcutButton.vue`，依據狀態智慧切換為「重新建立桌面捷徑」
+- [x] **Task 5.4**: 執行型別檢查與建置驗證

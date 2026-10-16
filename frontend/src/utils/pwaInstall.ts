@@ -13,6 +13,8 @@ export interface BeforeInstallPromptEvent extends Event {
 
 export type PwaInstallOutcome = 'accepted' | 'dismissed' | 'unsupported';
 
+const STORAGE_KEY_INSTALLED = 'stampvue_pwa_installed_record';
+
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
 const stateChangeListeners: Array<() => void> = [];
 
@@ -44,6 +46,63 @@ export function isChromiumBased(): boolean {
  */
 export function canPromptNativeInstall(): boolean {
   return deferredPrompt !== null;
+}
+
+/**
+ * 檢查本地儲存紀錄中是否曾成功安裝過
+ */
+export function hasInstalledHistory(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return localStorage.getItem(STORAGE_KEY_INSTALLED) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 設定本地安裝紀錄
+ */
+export function setInstalledHistory(installed: boolean): void {
+  if (typeof window === 'undefined') return;
+  try {
+    if (installed) {
+      localStorage.setItem(STORAGE_KEY_INSTALLED, 'true');
+    } else {
+      localStorage.removeItem(STORAGE_KEY_INSTALLED);
+    }
+  } catch {
+    // 忽略 localStorage 異常
+  }
+}
+
+/**
+ * 檢查是否已在瀏覽器/作業系統中註冊過應用
+ * (透過 Chrome 80+ 原生 getInstalledRelatedApps API 與本地紀錄雙重驗證)
+ */
+export async function checkInstalledInBrowser(): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+
+  // 1. 若目前處於 standalone 視窗，必然已安裝
+  if (isRunningStandalone()) return true;
+
+  // 2. 呼叫 Chrome 原生 getInstalledRelatedApps
+  if ('getInstalledRelatedApps' in navigator) {
+    try {
+      const relatedApps = await (navigator as unknown as {
+        getInstalledRelatedApps: () => Promise<Array<unknown>>;
+      }).getInstalledRelatedApps();
+      if (relatedApps && relatedApps.length > 0) {
+        setInstalledHistory(true);
+        return true;
+      }
+    } catch {
+      // 部分環境或權限限制下可能失敗，降級檢查
+    }
+  }
+
+  // 3. 檢查本地歷史安裝快取
+  return hasInstalledHistory();
 }
 
 /**
@@ -82,6 +141,7 @@ export function initPwaInstallListener(): void {
 
   window.addEventListener('appinstalled', () => {
     deferredPrompt = null;
+    setInstalledHistory(true);
     notifyStateChange();
     console.log('[PWA] StampVue 應用已成功安裝至桌面/應用列表！');
   });
@@ -101,6 +161,9 @@ export async function promptNativeInstall(): Promise<{
   try {
     await deferredPrompt.prompt();
     const choice = await deferredPrompt.userChoice;
+    if (choice.outcome === 'accepted') {
+      setInstalledHistory(true);
+    }
     deferredPrompt = null;
     notifyStateChange();
     return {

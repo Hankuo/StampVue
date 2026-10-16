@@ -1,50 +1,79 @@
 <template>
   <div class="shortcut-action-wrapper" v-if="!isStandalone">
-    <!-- 主按鈕：一鍵建立桌面捷徑 -->
+    <!-- 主按鈕：一鍵建立桌面捷徑 (自適應狀態顯示) -->
     <button
       class="btn-install-shortcut"
-      :class="{ 'has-native': hasPrompt }"
+      :class="{ 'has-native': hasPrompt, 'is-reinstall': !hasPrompt && hasInstalledBefore }"
       @click="handleClick"
-      title="將 StampVue 一鍵加入電腦桌面捷徑，支援無網址列秒開"
+      :title="buttonTooltip"
     >
       <span class="btn-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <svg v-if="!hasPrompt && hasInstalledBefore" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
           <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
           <line x1="8" y1="21" x2="16" y2="21"></line>
           <line x1="12" y1="17" x2="12" y2="21"></line>
         </svg>
       </span>
-      <span class="btn-text">{{ hasPrompt ? '一鍵建立桌面捷徑' : '建立桌面捷徑' }}</span>
+      <span class="btn-text">{{ buttonLabel }}</span>
       <span v-if="hasPrompt" class="pulse-indicator"></span>
     </button>
 
-    <!-- 備用下載與手動指引彈窗 -->
+    <!-- 備用下載、手動指引與捷徑還原彈窗 -->
     <InstallShortcutModal
       :is-open="isModalOpen"
+      :is-reinstall="hasInstalledBefore"
       @close="isModalOpen = false"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import {
   isRunningStandalone,
   canPromptNativeInstall,
   promptNativeInstall,
+  checkInstalledInBrowser,
   onPwaStateChange
 } from '../utils/pwaInstall';
 import InstallShortcutModal from './InstallShortcutModal.vue';
 
 const isStandalone = ref(false);
 const hasPrompt = ref(false);
+const hasInstalledBefore = ref(false);
 const isModalOpen = ref(false);
 
 let unsubscribe: (() => void) | null = null;
 
-const updateState = () => {
+const buttonLabel = computed(() => {
+  if (hasPrompt.value) {
+    return '一鍵建立桌面捷徑';
+  }
+  if (hasInstalledBefore.value) {
+    return '重新建立桌面捷徑';
+  }
+  return '建立桌面捷徑';
+});
+
+const buttonTooltip = computed(() => {
+  if (hasPrompt.value) {
+    return 'Chrome 原生安裝就緒：點擊一鍵安裝並放置捷徑至桌面';
+  }
+  if (hasInstalledBefore.value) {
+    return '捷徑被移除或處於瀏覽器模式？點擊重新放回桌面';
+  }
+  return '將 StampVue 加入電腦桌面捷徑，支援無網址列秒開';
+});
+
+const updateState = async () => {
   isStandalone.value = isRunningStandalone();
   hasPrompt.value = canPromptNativeInstall();
+  hasInstalledBefore.value = await checkInstalledInBrowser();
 };
 
 onMounted(() => {
@@ -69,7 +98,7 @@ const handleClick = async () => {
       isModalOpen.value = true;
     }
   } else {
-    // 若尚未捕捉到 prompt（如手動關閉過或非支援情境），開啟彈窗
+    // 若尚未捕捉到 prompt（如曾安裝、手動關閉過或冷卻期），開啟自適應彈窗
     isModalOpen.value = true;
   }
 };
@@ -113,11 +142,25 @@ const handleClick = async () => {
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(15, 23, 42, 0.8));
 }
 
+.btn-install-shortcut.is-reinstall {
+  border-color: rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(15, 23, 42, 0.8));
+}
+
+.btn-install-shortcut.is-reinstall:hover {
+  border-color: rgba(59, 130, 246, 0.7);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
 .btn-icon {
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ef4444;
+}
+
+.is-reinstall .btn-icon {
+  color: #60a5fa;
 }
 
 .btn-text {

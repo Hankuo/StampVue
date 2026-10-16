@@ -8,7 +8,7 @@
             <span>印</span>
           </div>
           <div>
-            <h3 class="modal-title">建立 StampVue 桌面捷徑</h3>
+            <h3 class="modal-title">{{ isReinstall ? '重新建立 StampVue 桌面捷徑' : '建立 StampVue 桌面捷徑' }}</h3>
             <p class="modal-subtitle">快速將 StampVue 放到電腦桌面，雙擊即可獨立秒開！</p>
           </div>
         </div>
@@ -22,9 +22,20 @@
 
       <!-- 內容主體 -->
       <div class="modal-body">
-        <!-- 方案 1: 一鍵下載 Windows 網頁捷徑檔 -->
+        <!-- 若偵測為曾安裝或捷徑移除情境，顯示友善提示橫幅 -->
+        <div v-if="isReinstall" class="reinstall-notice">
+          <div class="notice-icon">ℹ️</div>
+          <div class="notice-text">
+            <strong>桌面捷徑被移除或不見了？</strong>
+            <p>
+              Chrome 判定 StampVue 已在應用列表中（或處於解除安裝冷卻期），因此不會再次主動彈出原生提示。您可以透過下方方式 <strong>1 秒放回桌面</strong>！
+            </p>
+          </div>
+        </div>
+
+        <!-- 方案 1: 一鍵下載 Windows 網頁捷徑檔 (秒解) -->
         <div class="method-card primary-card">
-          <div class="method-badge">推薦方式 1</div>
+          <div class="method-badge">最速秒解・推薦方式 1</div>
           <div class="method-content">
             <div class="method-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -34,8 +45,8 @@
               </svg>
             </div>
             <div class="method-text">
-              <div class="method-title">一鍵下載 Windows 桌面捷徑 (.url)</div>
-              <div class="method-desc">點擊下方按鈕下載捷徑檔，下載後直接拖移至桌面即可點擊啟動！</div>
+              <div class="method-title">一鍵下載 Windows 桌面捷徑檔 (.url)</div>
+              <div class="method-desc">點擊下方按鈕直接下載捷徑，下載後拖曳至桌面即可點擊啟動，不受 Chrome 快取限制！</div>
             </div>
           </div>
           <button class="btn-action-primary" @click="handleDownload">
@@ -48,25 +59,33 @@
           </button>
         </div>
 
-        <!-- 方案 2: Chrome 瀏覽器內建安裝 (獨立視窗 App) -->
+        <!-- 方案 2: Chrome 應用程式管理還原 (Chrome 內建) -->
         <div class="method-card">
-          <div class="method-badge secondary">推薦方式 2 (Chrome 內建)</div>
-          <div class="method-title-inline">透過 Chrome 選單建立獨立視窗捷徑：</div>
+          <div class="method-badge secondary">推薦方式 2 (Chrome 內建還原)</div>
+          <div class="method-title-inline">從 Chrome 應用程式庫重新建立桌面圖示：</div>
           <ol class="steps-list">
             <li>
               <span class="step-num">1</span>
-              <span>點擊 Chrome 視窗右上角的 <strong>「⋮」選單</strong>（三個點）。</span>
+              <span>在 Chrome 網址列輸入 <code class="code-badge">chrome://apps</code> 並按 Enter。</span>
             </li>
             <li>
               <span class="step-num">2</span>
-              <span>點選 <strong>「儲存並共用」</strong> ➔ <strong>「建立捷徑...」</strong>。</span>
+              <span>找到 <strong>StampVue</strong> 圖示，點擊滑鼠右鍵 ➔ 選擇 <strong>「建立捷徑...」</strong>。</span>
             </li>
             <li>
               <span class="step-num">3</span>
-              <span>務必勾選 <strong>「在新視窗中開啟」</strong>，點擊「建立」即大功告成！</span>
+              <span>勾選「桌面」並點擊「建立」，原生桌面圖示立即恢復！</span>
             </li>
           </ol>
         </div>
+
+        <!-- 方案 3 (進階): 完全重置 Chrome 狀態 -->
+        <details class="advanced-reset">
+          <summary class="advanced-summary">想重新看到 Chrome 第一次的原生安裝對話框？</summary>
+          <div class="advanced-content">
+            若想完整還原成全新未安裝狀態：至 <code class="code-badge">chrome://apps</code> 在 StampVue 按右鍵點選「從 Chrome 移除」，並按 F12 於 Application ➔ Storage 點擊「Clear site data」後重新整理頁面即可。
+          </div>
+        </details>
       </div>
 
       <!-- 底部操作列 -->
@@ -80,9 +99,16 @@
 <script setup lang="ts">
 import { downloadWindowsShortcut } from '../utils/pwaInstall';
 
-const props = defineProps<{
-  isOpen: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    isOpen: boolean;
+    isReinstall?: boolean;
+  }>(),
+  {
+    isOpen: false,
+    isReinstall: false
+  }
+);
 
 const emit = defineEmits<{
   (e: 'close'): void;
@@ -191,6 +217,40 @@ const handleDownload = () => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.reinstall-notice {
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.notice-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.notice-text {
+  font-size: 0.84rem;
+  color: #bfdbfe;
+}
+
+.notice-text strong {
+  color: #ffffff;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.notice-text p {
+  margin: 0;
+  color: #93c5fd;
+  line-height: 1.4;
 }
 
 .method-card {
@@ -215,8 +275,7 @@ const handleDownload = () => {
   background: #ef4444;
   color: white;
   margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
 }
 
 .method-badge.secondary {
@@ -314,6 +373,43 @@ const handleDownload = () => {
   justify-content: center;
   font-size: 0.75rem;
   flex-shrink: 0;
+}
+
+.code-badge {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #38bdf8;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.82rem;
+}
+
+.advanced-reset {
+  margin-top: 4px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.advanced-summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  user-select: none;
+  transition: color 0.15s;
+}
+
+.advanced-summary:hover {
+  color: #cbd5e1;
+}
+
+.advanced-content {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  line-height: 1.5;
 }
 
 .modal-footer {

@@ -30,6 +30,7 @@
 | US-02 | 桌面應用使用者 | 從桌面捷徑開啟 StampVue | 擁有獨立視窗無網址列的類原生軟體體驗 | P0 |
 | US-03 | 已安裝之使用者 | 在已開啟的 PWA 視窗中 | 按鈕狀態自動切換為「已安裝為桌面應用」或隱藏，避免重複觸發 | P1 |
 | US-04 | 非 Chrome 或不支援環境使用者 | 點擊按鈕時 | 獲得替代方案（一鍵下載 Windows `.url` 檔案或圖文步驟教學） | P1 |
+| US-05 | 桌面捷徑曾被刪除之使用者 | 在瀏覽器中再次點擊建立捷徑 | 清楚理解 Chrome 狀態並獲取一鍵秒級還原捷徑的方案 | P0 |
 
 ---
 
@@ -40,8 +41,9 @@
 - [x] 提供高畫質 App 圖示（SVG 及標準 192x192、512x512 尺寸）。
 - [x] 註冊輕量級 Service Worker (`sw.js`)，符合 Chrome PWA 安裝資格。
 - [x] 建立 `usePwaInstall` / `pwaInstall` 工具模組，監聽並管理 `beforeinstallprompt`、`appinstalled` 及獨立視窗檢測 (`standalone`)。
+- [x] 整合 `navigator.getInstalledRelatedApps()` 偵測瀏覽器已安裝但桌面捷徑遺失之情境。
 - [x] 於 StampVue 工作台右上角整合「📲 建立桌面捷徑」按鈕與回饋導引彈窗 (`InstallShortcutModal.vue`)。
-- [x] 支援 Windows `.url` 捷徑一鍵下載作為備選降級方案。
+- [x] 支援 Windows `.url` 捷徑一鍵下載作為備選降級方案與秒級還原方案。
 
 ### 3.2 不包含項目 (Out of Scope / Non-Goals)
 - 本次迭代不涉及後端資料庫或雲端推播通知 (Push Notifications)。
@@ -62,8 +64,11 @@
 - **Then** 檢測為 Standalone 模式，頂部不顯示「建立捷徑」之推廣按鈕，工作空間最大化。
 
 ### AC-03: 備選下載與教學彈窗
-- **Given** 使用者環境未能觸發原生 prompt（如手動拒絕過或瀏覽器限制）
+- **Given** 使用者環境未能觸發原生 prompt（如非支援環境）
 - **When** 使用者點擊按鈕
-- **Then** 彈出「建立桌面捷徑」專屬對話窗，提供：
-  1. 「一鍵下載 Windows 捷徑 (.url)」功能。
-  2. Chrome 右上角 `⋮` → 「儲存並共用」 → 「建立捷徑」圖文指引。
+- **Then** 彈出「建立桌面捷徑」專屬對話窗，提供一鍵下載 Windows 捷徑 (.url) 功能與 Chrome 手動指引。
+
+### AC-04: 捷徑移除與重複安裝狀態自適應 (Restoration Adaptation)
+- **Given** 使用者曾安裝過 StampVue，但刪除了桌面捷徑或處於 Chrome 冷卻期
+- **When** 使用者再次點擊「建立桌面捷徑」
+- **Then** 系統清楚提示「偵測到您可能已在 Chrome 安裝過 StampVue」，並優先提供「1 秒下載 Windows 捷徑直接放回桌面」或「開啟 chrome://apps 重新建立捷徑」之解法，消除流程變化的困惑。
