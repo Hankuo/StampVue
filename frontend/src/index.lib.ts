@@ -17,25 +17,41 @@ export type {
 // 導出開箱即用彈出式工作台 (Drop-in Modal Widget)
 export { openStampModal, type StampModalOptions } from './modal';
 
+// 導出 PWA 桌面捷徑安裝工具
+export {
+  isRunningStandalone,
+  isChromiumBased,
+  canPromptNativeInstall,
+  promptNativeInstall,
+  downloadWindowsShortcut,
+  onPwaStateChange
+} from './utils/pwaInstall';
+
 // 導出 Vue 元件
 export { default as StampWorkbench } from './components/StampWorkbench.vue';
 export { default as StampModal } from './components/StampModal.vue';
 export { default as CameraCapture } from './components/CameraCapture.vue';
 export { default as StampControls } from './components/StampControls.vue';
 export { default as ImagePreview } from './components/ImagePreview.vue';
+export { default as InstallShortcutButton } from './components/InstallShortcutButton.vue';
+export { default as InstallShortcutModal } from './components/InstallShortcutModal.vue';
 
 // 導入供全域預設導出
 import { StampProcessor } from './utils/stampProcessor';
 import { openStampModal } from './modal';
 import StampWorkbench from './components/StampWorkbench.vue';
 import StampModal from './components/StampModal.vue';
+import InstallShortcutButton from './components/InstallShortcutButton.vue';
+import InstallShortcutModal from './components/InstallShortcutModal.vue';
 
 const StampVue = {
   StampProcessor,
   openStampModal,
   openModal: openStampModal,
   StampWorkbench,
-  StampModal
+  StampModal,
+  InstallShortcutButton,
+  InstallShortcutModal
 };
 
 export default StampVue;

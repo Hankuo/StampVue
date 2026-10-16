@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="stampGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#dc2626" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#dc2626" flood-opacity="0.35" />
+    </filter>
+  </defs>
+  <!-- Background Rounded Rect -->
+  <rect width="512" height="512" rx="128" fill="#0f172a" />
+  
+  <!-- Outer Stamp Circle -->
+  <g filter="url(#shadow)">
+    <circle cx="256" cy="256" r="180" fill="url(#stampGrad)" />
+    <circle cx="256" cy="256" r="156" fill="none" stroke="#ffffff" stroke-width="10" stroke-dasharray="14 8" opacity="0.9" />
+    <circle cx="256" cy="256" r="140" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.6" />
+  </g>
+
+  <!-- Traditional Seal Characters: 印 (Seal) / 章 (Stamp) -->
+  <text x="256" y="300" 
+        font-family="'Noto Serif TC', 'Songti SC', 'SimSun', serif" 
+        font-size="140" 
+        font-weight="900" 
+        fill="#ffffff" 
+        text-anchor="middle" 
+        letter-spacing="2">印</text>
+</svg>
